@@ -1,5 +1,5 @@
 # Builds either Spring app: docker build -f deploy/docker/spring.Dockerfile --build-arg APP=pricing-api .
-FROM eclipse-temurin:21-jdk-alpine AS build
+FROM eclipse-temurin:25-jdk-alpine AS build
 ARG APP
 WORKDIR /src
 COPY gradlew settings.gradle.kts build.gradle.kts ./
@@ -15,7 +15,7 @@ ARG OTEL_AGENT_VERSION=2.33.1
 RUN wget -q -O /agent.jar \
     https://repo.maven.apache.org/maven2/io/opentelemetry/javaagent/opentelemetry-javaagent/${OTEL_AGENT_VERSION}/opentelemetry-javaagent-${OTEL_AGENT_VERSION}.jar
 
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 RUN addgroup -S app && adduser -S app -G app
 WORKDIR /app
 COPY --from=build /app.jar app.jar
