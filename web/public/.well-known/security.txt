@@ -1,5 +1,5 @@
-# Replace the contact before publishing. See docs/deployment.md.
-Contact: mailto:contact@example.com
+# How to report a security problem in Benchline.
+Contact: mailto:patilrajvardhan27@gmail.com
 Expires: 2027-11-09T00:00:00.000Z
 Preferred-Languages: en
 Canonical: https://example.com/.well-known/security.txt

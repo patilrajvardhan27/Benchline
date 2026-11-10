@@ -3,7 +3,7 @@ import { z } from "zod";
 const schema = z.object({
   VITE_API_BASE_URL: z.string().default(""),
   VITE_DEMO_MODE: z.string().default("false"),
-  VITE_CONTACT_EMAIL: z.string().default("contact@example.com"),
+  VITE_CONTACT_EMAIL: z.string().default("patilrajvardhan27@gmail.com"),
   VITE_OPERATOR_NAME: z.string().default("Benchline maintainer"),
   VITE_OIDC_AUTHORITY: z.string().default(""),
   VITE_OIDC_CLIENT_ID: z.string().default("benchline-web"),

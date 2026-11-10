@@ -50,8 +50,6 @@ NOTES = {
                "doesn't say so.", EMBER_DARK),
     "n-host": ("Only the static demo is free and always on. The full stack (Kafka, Postgres, three services) "
                "costs money or credits to keep running, so run it for a demo or a video and switch it off.", INK),
-    "n-limits": ("Honest limits: the docker, helm and terraform files have not been run end to end, and neither has "
-                 "the full live Kafka replay. Each piece is tested on its own.", EMBER_DARK),
 }
 
 

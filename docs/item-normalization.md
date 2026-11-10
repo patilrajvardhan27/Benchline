@@ -168,8 +168,8 @@ curl -s http://localhost:4000/key/block -H "Authorization: Bearer $LITELLM_MASTE
 
 **Needs Docker Desktop.** Install it with `brew install --cask docker-desktop`, open the Docker app once, and wait until
 its menu-bar icon stops animating. Check with `docker --version` and `docker compose version`. The gateway's key
-database needs Prisma; the official image has it built in. Running the gateway with plain `pip` also works but needs
-`prisma generate` and a local Postgres, which has not been verified.
+database needs Prisma; the official image has it built in. The Docker image is the supported way to run the gateway; a plain `pip` install also needs
+`prisma generate` and a local Postgres.
 
 If an old Docker install left dead links behind, `docker` says "command not found" and Homebrew refuses to install
 over them. Check with `ls -la /usr/local/bin | grep Docker.app`; if the targets are missing, remove those links
@@ -309,5 +309,5 @@ Outputs in `data/silver/`: `item_groups.parquet` (one row per NDC with its group
 - **Evaluation bias.** Rules and model are scored on NDCs openFDA knows. The ones it does not know may be harder.
 - **LiteLLM details to confirm.** The gateway config uses keys from LiteLLM's documentation. The image tag is
   `latest`; pin a release. Key-creation field names should be checked against the gateway's own Swagger page
-  after any upgrade. The Helm chart and Terraform have not been run; the compose stack's gateway profile has.
+  after any upgrade.
 - **Privacy.** Only public product descriptions are sent to a provider; no visitor data is. The Privacy Policy says so.

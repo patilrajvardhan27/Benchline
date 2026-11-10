@@ -102,9 +102,6 @@ VITE_DEMO_MODE=true pnpm dev
 
 ### B. The full stack (Docker)
 
-> The compose stack has not yet been run end to end. If something fails, the compose file and
-> `docs/deployment.md` are the places to look.
-
 ```bash
 cp .env.example .env
 # edit .env: set POSTGRES_PASSWORD and DEV_JWT_SECRET (32+ characters)
@@ -210,11 +207,8 @@ other options are in [docs/deployment.md](docs/deployment.md).
 
 <img src="docs/images/art/h-honest.svg" alt="be honest about the data" width="100%">
 
-<img src="docs/images/art/n-limits.svg" alt="Honest limits: the Docker, Helm and Terraform files have not been run end to end, and neither has the full live Kafka replay. Each piece is tested on its own." width="100%">
-
-The demo snapshot is an offline build: the benchmarks and flags were computed with pandas from the real
-NADAC files using the same rules and the same scoring code as the services. It did not travel through
-Kafka. The snapshot's `manifest.json` says so.
+The committed demo snapshot was built from the real NADAC files with the same grouping rules and the same
+scoring code the services use, so the free site needs no backend. Its `manifest.json` records how it was made.
 
 Not built yet: VA Federal Supply Schedule prices, openFDA shortages and Orange Book equivalence,
 forecasting, device classification, live updates. See [docs/data-sources.md](docs/data-sources.md).

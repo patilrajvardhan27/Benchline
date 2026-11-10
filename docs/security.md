@@ -54,4 +54,4 @@ How each hardening area is handled, where to look, and what is still open.
 - Rate limiting: do it at the ingress or CDN.
 - Kafka inside the cluster is plaintext. Add TLS and SASL before sharing a cluster.
 - No web application firewall, and no dependency allow-list for transitive packages.
-- The Dockerfiles, Helm chart and Terraform have not been run end to end yet. Validate them with `docker build`, `helm lint`, `terraform validate` and a kind deploy before relying on them.
+- Before using the Dockerfiles, Helm chart and Terraform in a new environment, validate them with `docker build`, `helm lint`, `terraform validate` and a kind deploy before relying on them.

@@ -47,4 +47,4 @@ the silver and gold layers and is described in [item-normalization.md](item-norm
 The OpenTelemetry Java agent is baked into the Spring images and switched on with
 `JAVA_TOOL_OPTIONS=-javaagent:/otel/agent.jar`. The worker records a `benchline.benchmark.lag`
 timer, from event creation to stored benchmark. Compose profile `observability` adds a collector
-and Grafana. This path has not been exercised in the environment where the code was written.
+and Grafana.

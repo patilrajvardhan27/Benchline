@@ -109,7 +109,7 @@ services:
       dockerfile: deploy/docker/web.Dockerfile
       args:
         VITE_API_BASE_URL: http://localhost:8080
-        VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-contact@example.com}
+        VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-patilrajvardhan27@gmail.com}
         VITE_OPERATOR_NAME: ${VITE_OPERATOR_NAME:-Benchline maintainer}
     ports: ["127.0.0.1:8088:8080"]
     depends_on: [pricing-api]
