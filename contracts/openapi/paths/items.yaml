@@ -1,0 +1,70 @@
+items:
+  get:
+    tags: [items]
+    operationId: searchItems
+    summary: Search the item catalog
+    security: []
+    parameters:
+      - { name: query, in: query, schema: { type: string, maxLength: 100 } }
+      - { name: group, in: query, schema: { type: string } }
+      - $ref: ./_shared.yaml#/parameters/Page
+      - $ref: ./_shared.yaml#/parameters/Size
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: ../schemas/items.yaml#/ItemPage }
+      '400': { $ref: ./_shared.yaml#/responses/Problem }
+item:
+  get:
+    tags: [items]
+    operationId: getItem
+    summary: Item detail with its group
+    security: []
+    parameters:
+      - { name: itemId, in: path, required: true, schema: { type: string } }
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: ../schemas/items.yaml#/Item }
+      '404': { $ref: ./_shared.yaml#/responses/Problem }
+prices:
+  get:
+    tags: [prices]
+    operationId: getItemPrices
+    summary: Price history for one item
+    security: []
+    parameters:
+      - { name: itemId, in: path, required: true, schema: { type: string } }
+      - { name: source, in: query, schema: { $ref: ../schemas/items.yaml#/PriceSource } }
+      - { name: from, in: query, schema: { type: string, format: date } }
+      - { name: to, in: query, schema: { type: string, format: date } }
+    responses:
+      '200':
+        description: OK, oldest first
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: ../schemas/items.yaml#/PricePoint }
+      '404': { $ref: ./_shared.yaml#/responses/Problem }
+equivalents:
+  get:
+    tags: [items]
+    operationId: getEquivalents
+    summary: Lower-priced NDCs sold under the same description
+    security: []
+    parameters:
+      - { name: itemId, in: path, required: true, schema: { type: string } }
+    responses:
+      '200':
+        description: OK, cheapest first
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: ../schemas/items.yaml#/Equivalent }
+      '404': { $ref: ./_shared.yaml#/responses/Problem }

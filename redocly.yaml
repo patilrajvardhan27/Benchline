@@ -1,0 +1,5 @@
+extends:
+  - recommended
+rules:
+  # Public read endpoints with no failure mode besides a 5xx do not need a 4xx.
+  operation-4xx-response: off

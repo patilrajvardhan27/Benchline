@@ -1,0 +1,42 @@
+/* Every animation here uses a "from" keyframe only, so with motion disabled
+   the element simply shows its final state. */
+@keyframes bl-rise { from { opacity: 0; transform: translateY(10px); } }
+@keyframes bl-fade { from { opacity: 0; } }
+@keyframes bl-pulse { 50% { opacity: 0.45; } }
+@keyframes bl-draw { from { stroke-dashoffset: 1; } }
+@keyframes bl-grow-x { from { transform: scaleX(0); } }
+@keyframes bl-drop { from { opacity: 0; transform: translateY(-6px) scale(0.9); } }
+@keyframes bl-progress { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+@keyframes bl-flow { from { left: 0; opacity: 0; } 10%, 90% { opacity: 1; } to { left: calc(100% - 8px); opacity: 0; } }
+
+.page-enter { animation: bl-rise var(--bl-dur-slow) var(--bl-ease-out) both; }
+.reveal { animation: bl-rise var(--bl-dur-slow) var(--bl-ease-out) both; animation-delay: calc(var(--i, 0) * 70ms); }
+.fade-in { animation: bl-fade var(--bl-dur-base) ease-out both; }
+
+tbody tr.row-in { animation: bl-fade var(--bl-dur-base) ease-out both; animation-delay: calc(var(--row, 0) * 24ms); }
+
+.skeleton { background: var(--bl-skeleton); border-radius: var(--bl-radius-1); animation: bl-pulse 1.2s ease-in-out infinite; }
+.skeleton--row { height: 1.1rem; margin: var(--bl-space-3) 0; }
+.skeleton--stat { height: 2rem; width: 6rem; }
+.skeleton--chart { height: 14rem; width: 100%; }
+
+.chart .line { stroke-dasharray: 1; stroke-dashoffset: 0; animation: bl-draw 1.1s var(--bl-ease-in-out) both; }
+.chart .line--alt { stroke-dasharray: 4 3; animation: bl-fade 1.1s ease-out both; }
+.chart .band { animation: bl-fade 0.8s ease-out 0.2s both; }
+.chart .point--flag { transform-box: fill-box; transform-origin: center; animation: bl-drop 0.5s var(--bl-ease-out) 0.9s both; }
+.range__band { animation: bl-grow-x 0.9s var(--bl-ease-out) both; }
+
+.route-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; overflow: hidden; z-index: 200; pointer-events: none; }
+.route-progress::after { content: ""; display: block; height: 100%; width: 100%; background: var(--bl-teal-600); animation: bl-progress 1s var(--bl-ease-in-out) infinite; }
+
+.flow { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: var(--bl-space-4); margin: 0; padding: 0; list-style: none; max-width: none; }
+.flow li { position: relative; border: 1px solid var(--bl-line); background: var(--bl-surface); padding: var(--bl-space-3) var(--bl-space-4); border-radius: var(--bl-radius-1); margin: 0; }
+.flow li strong { display: block; font-size: var(--bl-text-sm); }
+.flow li span { color: var(--bl-ink-muted); font-size: var(--bl-text-xs); }
+.flow li::after { content: ""; position: absolute; left: 0; bottom: -1px; height: 2px; width: 8px; background: var(--bl-ember-500); animation: bl-flow 2.4s var(--bl-ease-in-out) infinite; animation-delay: calc(var(--i, 0) * 0.35s); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .route-progress::after { transform: none; opacity: 0.6; }
+  .flow li::after { display: none; }
+}

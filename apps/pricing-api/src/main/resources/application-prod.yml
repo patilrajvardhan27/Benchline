@@ -1,0 +1,9 @@
+# Activated on AKS with SPRING_PROFILES_ACTIVE=prod
+benchline:
+  security:
+    require-https: true
+    dev-jwt-secret: ""
+logging:
+  structured:
+    format:
+      console: ecs

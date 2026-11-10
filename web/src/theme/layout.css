@@ -1,0 +1,40 @@
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+.container { width: 100%; max-width: var(--bl-content-width); margin: 0 auto; padding: 0 var(--bl-space-4); }
+main { flex: 1; padding: var(--bl-space-8) 0 var(--bl-space-12); }
+
+.site-header { background: var(--bl-surface); border-bottom: 1px solid var(--bl-line); position: sticky; top: 0; z-index: 10; }
+.site-header .container { display: flex; align-items: center; gap: var(--bl-space-6); min-height: 3.5rem; flex-wrap: wrap; }
+.brand { font-weight: 600; font-size: var(--bl-text-lg); color: var(--bl-ink); background-image: none; letter-spacing: -0.02em; }
+.brand span { color: var(--bl-teal-700); }
+.nav { display: flex; gap: var(--bl-space-1); flex-wrap: wrap; margin-left: auto; }
+.nav a {
+  color: var(--bl-ink); padding: var(--bl-space-2) var(--bl-space-3);
+  background-image: linear-gradient(var(--bl-teal-700), var(--bl-teal-700));
+  background-size: 0 2px; background-position: var(--bl-space-3) calc(100% - 4px);
+  transition: background-size var(--bl-dur-base) var(--bl-ease-out), color var(--bl-dur-fast);
+}
+.nav a:hover { color: var(--bl-teal-700); background-size: calc(100% - 24px) 2px; }
+.nav a[aria-current="page"] { color: var(--bl-teal-700); font-weight: 600; background-size: calc(100% - 24px) 2px; }
+
+.site-footer { background: var(--bl-surface); border-top: 1px solid var(--bl-line); padding: var(--bl-space-6) 0; font-size: var(--bl-text-sm); }
+.site-footer ul { list-style: none; display: flex; gap: var(--bl-space-4); flex-wrap: wrap; padding: 0; margin: 0 0 var(--bl-space-3); max-width: none; }
+.site-footer p { margin-bottom: var(--bl-space-2); }
+
+.page-head { margin-bottom: var(--bl-space-6); }
+.page-head p { color: var(--bl-ink-muted); margin: 0; }
+.page-head h1:focus { outline: none; }
+
+.stack > * + * { margin-top: var(--bl-space-6); }
+.cluster { display: flex; gap: var(--bl-space-3); flex-wrap: wrap; align-items: center; }
+.grid-2 { display: grid; gap: var(--bl-space-6); grid-template-columns: 1fr; }
+@media (min-width: 52rem) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+
+.panel { background: var(--bl-surface); border: 1px solid var(--bl-line); border-radius: var(--bl-radius-1); padding: var(--bl-space-4) var(--bl-space-6); }
+.panel > h2 { margin-bottom: var(--bl-space-4); }
+
+.prose h2 { margin-top: var(--bl-space-8); }
+.prose h2:first-child { margin-top: 0; }
+.prose { max-width: 68ch; }
+
+/* A horizontal list should not inherit the vertical spacing between list items. */
+.site-footer li + li { margin-top: 0; }

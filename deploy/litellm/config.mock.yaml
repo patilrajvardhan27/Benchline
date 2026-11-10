@@ -1,0 +1,13 @@
+# Budget and key testing with NO provider key and no cost.
+# The gateway answers every request itself with a canned reply, but still counts tokens, spend and budgets,
+# so virtual keys, limits and refusals behave as they would with a real model.
+#   litellm --config deploy/litellm/config.mock.yaml
+model_list:
+  - model_name: benchline-normalizer
+    litellm_params:
+      model: openai/gpt-4o-mini
+      api_key: not-a-real-key
+      mock_response: '{"ingredient": "OLANZAPINE", "is_brand": true, "strength": "15 MG", "form": "TABLET"}'
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY

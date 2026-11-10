@@ -1,0 +1,107 @@
+{{- range $name, $svc := .Values.services }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "benchline.labels" $ | nindent 4 }}
+    {{- include "benchline.selector" $name | nindent 4 }}
+spec:
+  replicas: {{ $svc.replicas }}
+  selector:
+    matchLabels:
+      {{- include "benchline.selector" $name | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "benchline.labels" $ | nindent 8 }}
+        {{- include "benchline.selector" $name | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: { type: RuntimeDefault }
+      containers:
+        - name: {{ $name }}
+          image: {{ include "benchline.image" (dict "root" $ "image" $svc.image) }}
+          imagePullPolicy: {{ $.Values.global.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ $svc.port }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities: { drop: [ALL] }
+          env:
+            {{- range $key := $svc.secretEnv }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secretName }}
+                  key: {{ $key }}
+            {{- end }}
+            {{- range $key := $svc.optionalSecretEnv }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secretName }}
+                  key: {{ $key }}
+                  optional: true
+            {{- end }}
+            {{- include "benchline.commonEnv" $ | nindent 12 }}
+            - name: OTEL_SERVICE_NAME
+              value: {{ $name }}
+            {{- range $key, $value := $svc.env }}
+            {{- if $value }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- end }}
+          readinessProbe:
+            httpGet: { path: {{ $svc.probe }}{{ if eq $svc.probe "/actuator/health" }}/readiness{{ end }}, port: http }
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: {{ $svc.probe }}{{ if eq $svc.probe "/actuator/health" }}/liveness{{ end }}, port: http }
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            {{- toYaml $svc.resources | nindent 12 }}
+          {{- if $.Values.secretsStore.enabled }}
+          volumeMounts:
+            - { name: secrets-store, mountPath: /mnt/secrets-store, readOnly: true }
+          {{- end }}
+      {{- if $.Values.secretsStore.enabled }}
+      volumes:
+        - name: secrets-store
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes: { secretProviderClass: benchline-keyvault }
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "benchline.labels" $ | nindent 4 }}
+spec:
+  selector:
+    {{- include "benchline.selector" $name | nindent 4 }}
+  ports:
+    - { name: http, port: {{ $svc.port }}, targetPort: http }
+{{- if $.Values.podDisruptionBudget.enabled }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ $name }}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      {{- include "benchline.selector" $name | nindent 6 }}
+{{- end }}
+{{- end }}

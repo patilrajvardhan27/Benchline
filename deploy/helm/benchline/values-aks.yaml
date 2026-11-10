@@ -1,0 +1,21 @@
+# Azure Kubernetes Service. Secrets come from Key Vault, images from ACR.
+global:
+  imageRegistry: REPLACE_WITH_ACR_NAME.azurecr.io
+  pullPolicy: IfNotPresent
+ingress:
+  enabled: true
+  className: webapprouting.kubernetes.azure.com
+  host: REPLACE_WITH_HOST
+  tls: { enabled: true, secretName: benchline-tls }
+secretsStore:
+  enabled: true
+  keyVaultName: REPLACE_WITH_VAULT_NAME
+  tenantId: REPLACE_WITH_TENANT_ID
+  userAssignedIdentityClientId: REPLACE_WITH_CLIENT_ID
+services:
+  pricing-api:
+    env:
+      CORS_ALLOWED_ORIGINS: https://REPLACE_WITH_HOST
+      OIDC_ISSUER_URI: REPLACE_WITH_ISSUER
+podDisruptionBudget: { enabled: false }
+otel: { enabled: false }

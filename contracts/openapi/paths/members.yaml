@@ -1,0 +1,35 @@
+list:
+  get:
+    tags: [members]
+    operationId: listFacilities
+    summary: Synthetic demo facilities
+    security: [{ bearerAuth: [members:read] }]
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema:
+              type: array
+              items: { $ref: ../schemas/members.yaml#/Facility }
+      '401': { $ref: ./_shared.yaml#/responses/Problem }
+      '403': { $ref: ./_shared.yaml#/responses/Problem }
+opportunities:
+  get:
+    tags: [members]
+    operationId: getOpportunities
+    summary: Purchase lines priced above the group p25 (synthetic data)
+    security: [{ bearerAuth: [members:read] }]
+    parameters:
+      - { name: memberId, in: path, required: true, schema: { type: string } }
+      - $ref: ./_shared.yaml#/parameters/Page
+      - $ref: ./_shared.yaml#/parameters/Size
+    responses:
+      '200':
+        description: OK, largest saving first
+        content:
+          application/json:
+            schema: { $ref: ../schemas/members.yaml#/OpportunityReport }
+      '401': { $ref: ./_shared.yaml#/responses/Problem }
+      '403': { $ref: ./_shared.yaml#/responses/Problem }
+      '404': { $ref: ./_shared.yaml#/responses/Problem }

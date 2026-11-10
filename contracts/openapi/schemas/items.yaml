@@ -1,0 +1,48 @@
+Item:
+  type: object
+  required: [id, ndc11, description, groupId, groupName, otc]
+  properties:
+    id: { type: string, examples: ['ndc-00093715698'] }
+    ndc11: { type: string, pattern: '^[0-9]{11}$' }
+    description: { type: string }
+    groupId: { type: string }
+    groupName: { type: string }
+    otc: { type: boolean }
+    latestPrice:
+      oneOf:
+        - $ref: ./common.yaml#/Money
+        - type: 'null'
+    latestEffectiveDate:
+      type: [string, 'null']
+      format: date
+ItemPage:
+  type: object
+  required: [content, page]
+  properties:
+    content:
+      type: array
+      items: { $ref: '#/Item' }
+    page: { $ref: ./common.yaml#/PageMeta }
+PricePoint:
+  type: object
+  required: [id, itemId, source, unitPrice, pricingUnit, effectiveDate, asOfDate]
+  properties:
+    id: { type: string, format: uuid }
+    itemId: { type: string }
+    source: { $ref: '#/PriceSource' }
+    unitPrice: { $ref: ./common.yaml#/Money }
+    pricingUnit: { type: string, examples: ['EA', 'ML', 'GM'] }
+    effectiveDate: { type: string, format: date }
+    asOfDate: { type: string, format: date }
+PriceSource:
+  type: string
+  enum: [NADAC, FSS, BIG4, NC, SYNTHETIC_DEMO]
+Equivalent:
+  type: object
+  description: Another NDC sold under the same normalized description.
+  required: [itemId, ndc11, latestPrice, savingsPerUnit]
+  properties:
+    itemId: { type: string }
+    ndc11: { type: string }
+    latestPrice: { $ref: ./common.yaml#/Money }
+    savingsPerUnit: { $ref: ./common.yaml#/Money }

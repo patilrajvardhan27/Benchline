@@ -1,0 +1,3 @@
+subscription_id   = "00000000-0000-0000-0000-000000000000"
+github_repository = "your-account/benchline"
+# postgres_password: export TF_VAR_postgres_password instead of writing it here.

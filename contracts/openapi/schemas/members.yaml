@@ -1,0 +1,33 @@
+Facility:
+  type: object
+  required: [id, name, bedBand, region, synthetic]
+  properties:
+    id: { type: string }
+    name: { type: string }
+    bedBand: { type: string }
+    region: { type: string }
+    synthetic: { type: boolean, const: true }
+Opportunity:
+  type: object
+  required: [purchaseLineId, itemId, groupId, description, paidUnitPrice, benchmarkP25, qty, savingsAmount, source]
+  properties:
+    purchaseLineId: { type: integer, format: int64 }
+    itemId: { type: string }
+    groupId: { type: string }
+    description: { type: string }
+    paidUnitPrice: { $ref: ./common.yaml#/Money }
+    benchmarkP25: { $ref: ./common.yaml#/Money }
+    benchmarkP50: { $ref: ./common.yaml#/Money }
+    qty: { type: integer, minimum: 1 }
+    savingsAmount: { $ref: ./common.yaml#/Money }
+    source: { type: string, const: SYNTHETIC_DEMO }
+OpportunityReport:
+  type: object
+  required: [facility, totalSavings, lines, page]
+  properties:
+    facility: { $ref: '#/Facility' }
+    totalSavings: { $ref: ./common.yaml#/Money }
+    lines:
+      type: array
+      items: { $ref: '#/Opportunity' }
+    page: { $ref: ./common.yaml#/PageMeta }

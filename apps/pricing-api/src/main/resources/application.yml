@@ -1,0 +1,74 @@
+spring:
+  application:
+    name: pricing-api
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/benchline}
+    username: ${POSTGRES_USER:benchline}
+    password: ${POSTGRES_PASSWORD:}
+    hikari:
+      maximum-pool-size: 10
+  flyway:
+    enabled: false # migrations run in the migrate job, see docs/adr/0003-migrations.md
+  jackson:
+    default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${OIDC_ISSUER_URI:}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+      properties:
+        enable.idempotence: true
+        max.in.flight.requests.per.connection: 1
+
+server:
+  port: 8080
+  forward-headers-strategy: framework
+  shutdown: graceful
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+    include-exception: false
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        http-only: true
+        secure: true
+        same-site: strict
+      tracking-modes: cookie
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+benchline:
+  security:
+    dev-jwt-secret: ${DEV_JWT_SECRET:}
+    require-https: ${REQUIRE_HTTPS:false}
+    cors-allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  flags:
+    host: ${FLAGD_HOST:localhost}
+    port: ${FLAGD_PORT:8013}
+  outbox:
+    poll-ms: 500
+    batch-size: 200
+
+logging:
+  pattern:
+    level: "%5p [trace_id=%X{trace_id:-}]"

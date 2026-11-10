@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://benchline.dev/events/insights.price-anomaly-detected.v1.json",
+  "title": "insights.price-anomaly-detected.v1",
+  "type": "object",
+  "required": ["specversion", "id", "source", "type", "time", "datacontenttype", "data"],
+  "properties": {
+    "specversion": { "const": "1.0" },
+    "id": { "type": "string", "format": "uuid" },
+    "source": { "const": "benchline/ml-service" },
+    "type": { "const": "insights.price-anomaly-detected.v1" },
+    "time": { "type": "string", "format": "date-time" },
+    "datacontenttype": { "const": "application/json" },
+    "data": {
+      "type": "object",
+      "required": ["anomalyId", "pricePointId", "itemGroupId", "score", "method"],
+      "properties": {
+        "anomalyId": { "type": "string", "format": "uuid" },
+        "pricePointId": { "type": "string", "format": "uuid" },
+        "itemGroupId": { "type": "string" },
+        "score": { "type": "number" },
+        "method": { "type": "string" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

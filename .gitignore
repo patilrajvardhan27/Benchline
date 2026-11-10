@@ -1,0 +1,189 @@
+# ---------------------------------------------------------------
+# Secrets and local environment
+# ---------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.jks
+*.tfvars
+!*.tfvars.example
+.azure/
+
+# ---------------------------------------------------------------
+# AI assistant / agent tooling (kept out of version control)
+# ---------------------------------------------------------------
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md
+GEMINI.md
+.claude/
+.agents/
+.agent/
+.cursor/
+.cursorrules
+.cursorignore
+.cursorindexingignore
+.windsurf/
+.windsurfrules
+.aider*
+.codex/
+.gemini/
+.continue/
+.cline/
+.clinerules
+.roo/
+.roorules
+.kiro/
+.junie/
+.aiassistant/
+.copilot/
+.github/copilot-instructions.md
+.github/instructions/
+.github/prompts/
+.github/chatmodes/
+.github/agents/
+.zed/
+.sourcegraph/
+.codeium/
+.tabnine/
+.amazonq/
+.trae/
+.replit
+.mcp.json
+mcp.json
+.serena/
+.specify/
+.taskmaster/
+.superpowers/
+memory/
+prompts/
+scratchpad/
+.ai/
+ai/
+.prompts/
+.opencode/
+.augment/
+.goose/
+.qoder/
+.codebuddy/
+.vscode/mcp.json
+*.transcript.md
+*conversation*.md
+*chat-history*
+
+# Local planning notes, drafts and scratch documents: not part of the published repo
+/Benchline_*.md
+/NOTES*.md
+/TODO*.md
+/PLAN*.md
+/notes/
+/drafts/
+*.draft.md
+*.local.md
+
+# ---------------------------------------------------------------
+# Build output
+# ---------------------------------------------------------------
+build/
+out/
+target/
+dist/
+coverage/
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+.gradle/
+.kotlin/
+
+# ---------------------------------------------------------------
+# Node / web
+# ---------------------------------------------------------------
+node_modules/
+.pnpm-store/
+*.tsbuildinfo
+.vite/
+.eslintcache
+web/playwright-report/
+web/test-results/
+web/blob-report/
+web/.wrangler/
+
+# ---------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# ---------------------------------------------------------------
+# Data downloaded by the pipelines (re-creatable, large)
+# ---------------------------------------------------------------
+# Everything the pipelines download or generate: raw files, cleaned files, openFDA, model cache
+data/
+*.csv.gz
+
+# ---------------------------------------------------------------
+# Terraform / Helm
+# ---------------------------------------------------------------
+.terraform/
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.*
+crash.log
+deploy/helm/**/charts/*.tgz
+deploy/helm/**/Chart.lock
+
+# ---------------------------------------------------------------
+# Editors and OS
+# ---------------------------------------------------------------
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+
+# ---------------------------------------------------------------
+# Large by nature: archives, data dumps, model files, media, heap dumps.
+# Downloaded or generated, never hand-written, so never committed.
+# ---------------------------------------------------------------
+*.zip
+*.tgz
+*.tar
+*.tar.gz
+*.7z
+*.parquet
+*.feather
+*.arrow
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.sql.gz
+*.pkl
+*.pickle
+*.pt
+*.pth
+*.onnx
+*.h5
+*.safetensors
+*.bin
+*.mp4
+*.mov
+*.webm
+*.gif
+*.psd
+*.hprof
+*.jfr

@@ -1,0 +1,47 @@
+/* Design tokens. Contrast ratios are checked in the axe tests, not assumed. */
+:root {
+  --bl-bg: #f7f5f0;
+  --bl-surface: #fcfbf8;
+  --bl-ink: #28292b;
+  --bl-ink-muted: #5c5e63;
+  --bl-teal-600: #018380;
+  --bl-teal-700: #016b68;
+  --bl-teal-800: #01504d;
+  --bl-teal-100: #dcefee;
+  --bl-teal-300: #8cc9c6;
+  --bl-ember-500: #ff4e00;
+  --bl-ember-700: #b83800;
+  --bl-line: #d9d6cf;
+  --bl-skeleton: #e8e5de;
+
+  --bl-font-sans: "IBM Plex Sans", system-ui, sans-serif;
+  --bl-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --bl-space-1: 4px;
+  --bl-space-2: 8px;
+  --bl-space-3: 12px;
+  --bl-space-4: 16px;
+  --bl-space-6: 24px;
+  --bl-space-8: 32px;
+  --bl-space-12: 48px;
+
+  --bl-radius-1: 2px;
+  --bl-radius-2: 4px;
+
+  --bl-text-xs: 0.75rem;
+  --bl-text-sm: 0.875rem;
+  --bl-text-md: 1rem;
+  --bl-text-lg: 1.25rem;
+  --bl-text-xl: 1.75rem;
+  --bl-text-2xl: 2.25rem;
+
+  --bl-focus: 2px solid var(--bl-ember-500);
+  --bl-content-width: 72rem;
+
+  /* Motion */
+  --bl-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --bl-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --bl-dur-fast: 120ms;
+  --bl-dur-base: 240ms;
+  --bl-dur-slow: 600ms;
+}

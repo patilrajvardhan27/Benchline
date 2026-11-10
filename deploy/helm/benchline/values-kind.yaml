@@ -1,0 +1,15 @@
+# kind cluster for CI and local checks: local images, dev secrets, no TLS.
+global:
+  imageRegistry: ""
+  imageTag: ci
+  pullPolicy: Never
+devSecrets:
+  enabled: true
+  postgresPassword: ci-only-password
+  jwtSecret: ci-only-secret-at-least-32-characters-long
+services:
+  pricing-api:
+    env:
+      CORS_ALLOWED_ORIGINS: http://localhost:8088
+      SPRING_PROFILES_ACTIVE: ""
+networkPolicy: { enabled: false }

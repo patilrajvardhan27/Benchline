@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://benchline.dev/events/pricing.price-point-recorded.v1.json",
+  "title": "pricing.price-point-recorded.v1",
+  "description": "CloudEvents 1.0 envelope. Keyed by itemGroupId so one group's changes stay ordered on one partition.",
+  "type": "object",
+  "required": ["specversion", "id", "source", "type", "time", "datacontenttype", "data"],
+  "properties": {
+    "specversion": { "const": "1.0" },
+    "id": { "type": "string", "format": "uuid" },
+    "source": { "const": "benchline/pricing-api" },
+    "type": { "const": "pricing.price-point-recorded.v1" },
+    "time": { "type": "string", "format": "date-time" },
+    "datacontenttype": { "const": "application/json" },
+    "data": {
+      "type": "object",
+      "required": ["pricePointId", "itemId", "itemGroupId", "source", "unitPrice", "pricingUnit", "effectiveDate", "asOfDate"],
+      "properties": {
+        "pricePointId": { "type": "string", "format": "uuid" },
+        "itemId": { "type": "string" },
+        "itemGroupId": { "type": "string" },
+        "source": { "enum": ["NADAC", "FSS", "BIG4", "NC", "SYNTHETIC_DEMO"] },
+        "unitPrice": { "type": "string", "pattern": "^[0-9]+(\\.[0-9]{1,5})?$" },
+        "pricingUnit": { "type": "string" },
+        "previousUnitPrice": { "type": ["string", "null"], "pattern": "^[0-9]+(\\.[0-9]{1,5})?$" },
+        "effectiveDate": { "type": "string", "format": "date" },
+        "asOfDate": { "type": "string", "format": "date" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

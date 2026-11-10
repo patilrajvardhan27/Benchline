@@ -1,0 +1,17 @@
+**/node_modules
+**/build
+**/dist
+**/.gradle
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/test-results
+**/playwright-report
+.git
+.env
+.env.*
+data
+*.md
+!db/migrations/*.sql

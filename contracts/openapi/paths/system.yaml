@@ -1,0 +1,24 @@
+overview:
+  get:
+    tags: [system]
+    operationId: getOverview
+    summary: Counts for the dashboard stat strip
+    security: []
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: ../schemas/system.yaml#/Overview }
+config:
+  get:
+    tags: [system]
+    operationId: getConfig
+    summary: Feature flag values the web client needs
+    security: []
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: ../schemas/system.yaml#/FeatureConfig }

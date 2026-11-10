@@ -1,0 +1,39 @@
+name: Deploy web demo
+
+# Publishes the static demo (no backend) to Cloudflare. Needs two repository
+# secrets: CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID. See docs/deployment.md.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["web/**", "contracts/**"]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: demo
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { package_json_file: web/package.json }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm, cache-dependency-path: web/pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+        working-directory: web
+      - name: Build in demo mode
+        working-directory: web
+        env:
+          VITE_DEMO_MODE: "true"
+          VITE_CONTACT_EMAIL: ${{ vars.CONTACT_EMAIL }}
+          VITE_OPERATOR_NAME: ${{ vars.OPERATOR_NAME }}
+        run: pnpm build
+      - name: Publish
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: web
+          command: pages deploy dist --project-name=benchline

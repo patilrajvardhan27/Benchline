@@ -1,0 +1,27 @@
+# LiteLLM gateway for the Benchline item normalizer.
+#   docker compose --profile llm up -d litellm
+#
+# The pipeline calls one alias, "benchline-normalizer". The gateway decides which provider answers,
+# retries on failure, falls back to a second model, and counts spend per virtual key.
+# Change the model names to ones your provider keys can use. Provider keys come from the environment.
+#
+# Check key names against the current LiteLLM docs when you upgrade: https://docs.litellm.ai/docs/proxy/configs
+
+model_list:
+  - model_name: benchline-normalizer
+    litellm_params:
+      model: openai/gpt-4o-mini
+      api_key: "os.environ/NORMALIZER_API_KEY"
+  - model_name: benchline-normalizer-fallback
+    litellm_params:
+      model: anthropic/claude-haiku-5-5
+      api_key: "os.environ/NORMALIZER_FALLBACK_API_KEY"
+
+litellm_settings:
+  num_retries: 2
+  request_timeout: 30
+  drop_params: true          # drop options a provider does not support instead of failing the call
+  fallbacks: [{"benchline-normalizer": ["benchline-normalizer-fallback"]}]
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY   # admin key, only for creating virtual keys

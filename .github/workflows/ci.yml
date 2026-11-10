@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  guardrails:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24 }
+      - name: File length limit
+        run: node scripts/check-file-length.mjs
+      - name: Lint OpenAPI contract
+        run: npx --yes @redocly/cli@latest lint contracts/openapi/openapi.yaml
+      - name: Flag definitions match between compose and Helm
+        run: diff deploy/flagd/flags.flagd.json deploy/helm/benchline/files/flags.flagd.json
+
+  java:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 21, cache: gradle }
+      - name: Unit and integration tests (Testcontainers needs Docker, present on this runner)
+        run: ./gradlew --no-daemon test integrationTest jacocoTestReport
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: java-test-reports
+          path: "**/build/reports/tests"
+
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [pipelines, ml-service]
+    defaults:
+      run:
+        working-directory: ${{ matrix.project }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run mypy ${{ matrix.project == 'pipelines' && 'benchline_pipelines tests' || 'app tests' }}
+      - run: uv run pytest -q
+
+  scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv run --with pytest --with pandas --with pyarrow --with numpy pytest scripts/tests -q
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { package_json_file: web/package.json }
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm, cache-dependency-path: web/pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+        working-directory: web
+      - name: Types, lint, unit tests
+        working-directory: web
+        run: |
+          pnpm typecheck
+          pnpm lint
+          pnpm test
+          pnpm check:bundle
+      - name: Dependency audit (production)
+        working-directory: web
+        run: pnpm audit --prod --audit-level=high
+      - name: Browser tests with axe (WCAG 2.2 AA)
+        working-directory: web
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          pnpm exec playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: web/playwright-report
+
+  secrets-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  images:
+    needs: [java, python, web]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    strategy:
+      matrix:
+        include:
+          - { name: benchline-pricing-api, file: deploy/docker/spring.Dockerfile, args: "APP=pricing-api" }
+          - { name: benchline-benchmark-worker, file: deploy/docker/spring.Dockerfile, args: "APP=benchmark-worker" }
+          - { name: benchline-ml-service, file: deploy/docker/ml.Dockerfile, args: "" }
+          - { name: benchline-web, file: deploy/docker/web.Dockerfile, args: "" }
+          - { name: benchline-migrate, file: deploy/docker/migrate.Dockerfile, args: "" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        if: github.event_name == 'push'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.file }}
+          build-args: ${{ matrix.args }}
+          load: true
+          tags: ${{ matrix.name }}:scan
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
+      - name: Scan image, fail on critical vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ matrix.name }}:scan
+          severity: CRITICAL
+          exit-code: "1"
+          ignore-unfixed: true
+      - name: Push to GitHub Container Registry
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.file }}
+          build-args: ${{ matrix.args }}
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.name }}:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/${{ matrix.name }}:latest
+          cache-from: type=gha,scope=${{ matrix.name }}

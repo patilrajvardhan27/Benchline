@@ -1,0 +1,61 @@
+openapi: 3.1.0
+info:
+  title: Benchline API
+  version: 0.1.0
+  description: |
+    Pharmacy price benchmarking over public CMS NADAC data.
+    Member purchase lines are generated demo data and are labelled as such.
+  license:
+    name: MIT
+    identifier: MIT
+servers:
+  - url: http://localhost:8080
+    description: Local development
+tags:
+  - name: items
+  - name: prices
+  - name: benchmarks
+  - name: members
+  - name: anomalies
+  - name: system
+security:
+  - bearerAuth: []
+paths:
+  /api/v1/overview:
+    $ref: ./paths/system.yaml#/overview
+  /api/v1/config:
+    $ref: ./paths/system.yaml#/config
+  /api/v1/items:
+    $ref: ./paths/items.yaml#/items
+  /api/v1/items/{itemId}:
+    $ref: ./paths/items.yaml#/item
+  /api/v1/items/{itemId}/prices:
+    $ref: ./paths/items.yaml#/prices
+  /api/v1/items/{itemId}/equivalents:
+    $ref: ./paths/items.yaml#/equivalents
+  /api/v1/price-points:
+    $ref: ./paths/prices.yaml#/single
+  /api/v1/price-points:batch:
+    $ref: ./paths/prices.yaml#/batch
+  /api/v1/benchmarks/groups/{groupId}:
+    $ref: ./paths/benchmarks.yaml#/latest
+  /api/v1/benchmarks/groups/{groupId}/history:
+    $ref: ./paths/benchmarks.yaml#/history
+  /api/v1/members:
+    $ref: ./paths/members.yaml#/list
+  /api/v1/members/{memberId}/opportunities:
+    $ref: ./paths/members.yaml#/opportunities
+  /api/v1/anomalies:
+    $ref: ./paths/anomalies.yaml#/list
+  /api/v1/anomalies/{id}:
+    $ref: ./paths/anomalies.yaml#/review
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Scopes: prices:write, members:read, insights:read, insights:write.
+        Catalog, price history and benchmark reads are public because the
+        underlying data is public.

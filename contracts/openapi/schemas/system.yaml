@@ -1,0 +1,14 @@
+Overview:
+  type: object
+  required: [itemCount, groupCount, pricePointCount, latestAsOfDate, openAnomalies]
+  properties:
+    itemCount: { type: integer }
+    groupCount: { type: integer }
+    pricePointCount: { type: integer }
+    latestAsOfDate: { type: [string, 'null'], format: date }
+    openAnomalies: { type: integer }
+FeatureConfig:
+  type: object
+  required: [anomalyAlertsEnabled]
+  properties:
+    anomalyAlertsEnabled: { type: boolean }

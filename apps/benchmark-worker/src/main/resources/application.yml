@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: benchmark-worker
+  datasource:
+    url: ${POSTGRES_URL:jdbc:postgresql://localhost:5432/benchline}
+    username: ${POSTGRES_USER:benchline}
+    password: ${POSTGRES_PASSWORD:}
+    hikari:
+      maximum-pool-size: 6
+  flyway:
+    enabled: false # migrations run in the migrate job, see docs/adr/0003-migrations.md
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: false
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP:localhost:9092}
+    consumer:
+      group-id: benchmark-worker
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    listener:
+      concurrency: 3
+
+server:
+  port: 8081
+  shutdown: graceful
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+    include-exception: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+
+benchline:
+  flags:
+    host: ${FLAGD_HOST:localhost}
+    port: ${FLAGD_PORT:8013}
+  benchmark:
+    window-weeks: 52
+
+logging:
+  pattern:
+    level: "%5p [trace_id=%X{trace_id:-}]"

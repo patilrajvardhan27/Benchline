@@ -1,0 +1,41 @@
+single:
+  post:
+    tags: [prices]
+    operationId: recordPricePoint
+    summary: Record one price point
+    description: Returns 202. The benchmark is updated asynchronously from the event.
+    security: [{ bearerAuth: [prices:write] }]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: ../schemas/prices.yaml#/PricePointInput }
+    responses:
+      '202':
+        description: Accepted
+        content:
+          application/json:
+            schema: { $ref: ../schemas/prices.yaml#/IngestReceipt }
+      '400': { $ref: ./_shared.yaml#/responses/Problem }
+      '401': { $ref: ./_shared.yaml#/responses/Problem }
+      '403': { $ref: ./_shared.yaml#/responses/Problem }
+batch:
+  post:
+    tags: [prices]
+    operationId: recordPricePointBatch
+    summary: Pipeline loader, up to 1000 rows
+    security: [{ bearerAuth: [prices:write] }]
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: ../schemas/prices.yaml#/PricePointBatch }
+    responses:
+      '202':
+        description: Accepted
+        content:
+          application/json:
+            schema: { $ref: ../schemas/prices.yaml#/IngestReceipt }
+      '400': { $ref: ./_shared.yaml#/responses/Problem }
+      '401': { $ref: ./_shared.yaml#/responses/Problem }
+      '403': { $ref: ./_shared.yaml#/responses/Problem }

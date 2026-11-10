@@ -1,0 +1,41 @@
+list:
+  get:
+    tags: [anomalies]
+    operationId: listAnomalies
+    summary: Anomaly review queue
+    security: [{ bearerAuth: [insights:read] }]
+    parameters:
+      - { name: status, in: query, schema: { $ref: ../schemas/anomalies.yaml#/AnomalyStatus } }
+      - $ref: ./_shared.yaml#/parameters/Page
+      - $ref: ./_shared.yaml#/parameters/Size
+    responses:
+      '200':
+        description: OK, highest score first
+        content:
+          application/json:
+            schema: { $ref: ../schemas/anomalies.yaml#/AnomalyPage }
+      '401': { $ref: ./_shared.yaml#/responses/Problem }
+      '403': { $ref: ./_shared.yaml#/responses/Problem }
+review:
+  patch:
+    tags: [anomalies]
+    operationId: reviewAnomaly
+    summary: Confirm or dismiss an anomaly
+    security: [{ bearerAuth: [insights:write] }]
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema: { $ref: ../schemas/anomalies.yaml#/AnomalyReview }
+    responses:
+      '200':
+        description: Updated
+        content:
+          application/json:
+            schema: { $ref: ../schemas/anomalies.yaml#/Anomaly }
+      '400': { $ref: ./_shared.yaml#/responses/Problem }
+      '401': { $ref: ./_shared.yaml#/responses/Problem }
+      '403': { $ref: ./_shared.yaml#/responses/Problem }
+      '404': { $ref: ./_shared.yaml#/responses/Problem }

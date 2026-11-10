@@ -1,0 +1,22 @@
+BenchmarkSnapshot:
+  type: object
+  required: [groupId, groupName, asOfWeek, p10, p25, p50, p75, p90, nObs, method]
+  properties:
+    groupId: { type: string }
+    groupName: { type: string }
+    asOfWeek: { type: string, format: date }
+    p10: { $ref: ./common.yaml#/Money }
+    p25: { $ref: ./common.yaml#/Money }
+    p50: { $ref: ./common.yaml#/Money }
+    p75: { $ref: ./common.yaml#/Money }
+    p90: { $ref: ./common.yaml#/Money }
+    nObs: { type: integer, minimum: 1 }
+    method: { type: string, examples: ['percentile_cont/latest-per-item/52w'] }
+BenchmarkHistory:
+  type: object
+  required: [groupId, snapshots]
+  properties:
+    groupId: { type: string }
+    snapshots:
+      type: array
+      items: { $ref: '#/BenchmarkSnapshot' }

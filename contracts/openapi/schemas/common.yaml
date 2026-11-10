@@ -1,0 +1,32 @@
+Money:
+  type: string
+  pattern: '^[0-9]+(\.[0-9]{1,5})?$'
+  description: Decimal string, never a float. Up to five decimal places.
+  examples: ['0.03121']
+Problem:
+  type: object
+  description: RFC 9457 problem details. Never contains stack traces or internal paths.
+  required: [type, title, status]
+  properties:
+    type: { type: string, format: uri-reference }
+    title: { type: string }
+    status: { type: integer }
+    detail: { type: string }
+    instance: { type: string }
+    traceId: { type: string }
+    errors:
+      type: array
+      items:
+        type: object
+        required: [field, message]
+        properties:
+          field: { type: string }
+          message: { type: string }
+PageMeta:
+  type: object
+  required: [page, size, totalElements, totalPages]
+  properties:
+    page: { type: integer, minimum: 0 }
+    size: { type: integer, minimum: 1, maximum: 100 }
+    totalElements: { type: integer, minimum: 0 }
+    totalPages: { type: integer, minimum: 0 }

@@ -1,0 +1,37 @@
+AnomalyStatus:
+  type: string
+  enum: [OPEN, CONFIRMED, DISMISSED]
+Anomaly:
+  type: object
+  required: [id, pricePointId, groupId, groupName, itemId, score, method, status, detectedAt, unitPrice, effectiveDate]
+  properties:
+    id: { type: string, format: uuid }
+    pricePointId: { type: string, format: uuid }
+    groupId: { type: string }
+    groupName: { type: string }
+    itemId: { type: string }
+    unitPrice: { $ref: ./common.yaml#/Money }
+    previousUnitPrice:
+      oneOf:
+        - $ref: ./common.yaml#/Money
+        - type: 'null'
+    effectiveDate: { type: string, format: date }
+    score: { type: number }
+    method: { type: string, examples: ['robust-z/log-change'] }
+    status: { $ref: '#/AnomalyStatus' }
+    detectedAt: { type: string, format: date-time }
+AnomalyPage:
+  type: object
+  required: [content, page]
+  properties:
+    content:
+      type: array
+      items: { $ref: '#/Anomaly' }
+    page: { $ref: ./common.yaml#/PageMeta }
+AnomalyReview:
+  type: object
+  required: [status]
+  properties:
+    status:
+      type: string
+      enum: [CONFIRMED, DISMISSED]

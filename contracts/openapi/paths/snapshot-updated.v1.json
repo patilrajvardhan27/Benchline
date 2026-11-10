@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://benchline.dev/events/benchmark.snapshot-updated.v1.json",
+  "title": "benchmark.snapshot-updated.v1",
+  "type": "object",
+  "required": ["specversion", "id", "source", "type", "time", "datacontenttype", "data"],
+  "properties": {
+    "specversion": { "const": "1.0" },
+    "id": { "type": "string", "format": "uuid" },
+    "source": { "const": "benchline/benchmark-worker" },
+    "type": { "const": "benchmark.snapshot-updated.v1" },
+    "time": { "type": "string", "format": "date-time" },
+    "datacontenttype": { "const": "application/json" },
+    "data": {
+      "type": "object",
+      "required": ["itemGroupId", "asOfWeek", "p50", "nObs", "causedByEventId"],
+      "properties": {
+        "itemGroupId": { "type": "string" },
+        "asOfWeek": { "type": "string", "format": "date" },
+        "p50": { "type": "string" },
+        "nObs": { "type": "integer", "minimum": 1 },
+        "causedByEventId": { "type": "string", "format": "uuid" }
+      },
+      "additionalProperties": false
+    }
+  }
+}

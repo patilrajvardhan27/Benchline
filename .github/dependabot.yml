@@ -1,0 +1,28 @@
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: /
+    schedule: { interval: weekly }
+    groups:
+      spring: { patterns: ["org.springframework*", "org.springframework.boot*"] }
+  - package-ecosystem: npm
+    directory: /web
+    schedule: { interval: weekly }
+    groups:
+      react: { patterns: ["react*", "@types/react*"] }
+      tooling: { patterns: ["vite*", "vitest*", "@vitejs/*", "eslint*", "typescript*", "@typescript-eslint/*"] }
+  - package-ecosystem: pip
+    directory: /pipelines
+    schedule: { interval: weekly }
+  - package-ecosystem: pip
+    directory: /ml-service
+    schedule: { interval: weekly }
+  - package-ecosystem: docker
+    directory: /deploy/docker
+    schedule: { interval: weekly }
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+  - package-ecosystem: terraform
+    directory: /deploy/terraform
+    schedule: { interval: weekly }

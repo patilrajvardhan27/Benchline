@@ -1,0 +1,30 @@
+latest:
+  get:
+    tags: [benchmarks]
+    operationId: getBenchmark
+    summary: Latest p10 to p90 for a group
+    security: []
+    parameters:
+      - { name: groupId, in: path, required: true, schema: { type: string } }
+    responses:
+      '200':
+        description: OK
+        content:
+          application/json:
+            schema: { $ref: ../schemas/benchmarks.yaml#/BenchmarkSnapshot }
+      '404': { $ref: ./_shared.yaml#/responses/Problem }
+history:
+  get:
+    tags: [benchmarks]
+    operationId: getBenchmarkHistory
+    summary: Weekly benchmark snapshots for a group
+    security: []
+    parameters:
+      - { name: groupId, in: path, required: true, schema: { type: string } }
+    responses:
+      '200':
+        description: Weekly snapshots, oldest first
+        content:
+          application/json:
+            schema: { $ref: ../schemas/benchmarks.yaml#/BenchmarkHistory }
+      '404': { $ref: ./_shared.yaml#/responses/Problem }
