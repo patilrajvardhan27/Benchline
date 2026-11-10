@@ -33,7 +33,7 @@ jobs:
           build deploy/docker/ml.Dockerfile benchline-ml-service
           build deploy/docker/web.Dockerfile benchline-web
           build deploy/docker/migrate.Dockerfile benchline-migrate
-      - uses: azure/aks-set-context@v4
+      - uses: azure/aks-set-context@v5
         with:
           resource-group: ${{ vars.AZURE_RESOURCE_GROUP }}
           cluster-name: ${{ vars.AKS_NAME }}
