@@ -50,7 +50,7 @@ jobs:
         working-directory: ${{ matrix.project }}
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
       - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run mypy ${{ matrix.project == 'pipelines' && 'benchline_pipelines tests' || 'app tests' }}
@@ -60,14 +60,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
       - run: uv run --with pytest --with pandas --with pyarrow --with numpy pytest scripts/tests -q
 
   warehouse:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: astral-sh/setup-uv@v7
       - name: Silver data from the test fixture
         run: >
           uv run --project pipelines python -c "from pathlib import Path;
