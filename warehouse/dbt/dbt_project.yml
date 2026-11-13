@@ -1,0 +1,16 @@
+name: benchline
+version: "0.1.0"
+config-version: 2
+profile: benchline
+
+model-paths: ["models"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  benchline:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table

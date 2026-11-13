@@ -11,19 +11,7 @@ public final class Money {
 
     private Money() {}
 
-    public static BigDecimal parse(String raw) {
-        BigDecimal value = new BigDecimal(raw.trim());
-        if (value.signum() < 0) {
-            throw new IllegalArgumentException("Price cannot be negative");
-        }
-        return normalize(value);
-    }
-
     public static BigDecimal normalize(BigDecimal value) {
         return value.setScale(SCALE, RoundingMode.HALF_UP);
-    }
-
-    public static BigDecimal times(BigDecimal unitPrice, long qty) {
-        return normalize(unitPrice.multiply(BigDecimal.valueOf(qty)));
     }
 }

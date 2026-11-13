@@ -62,6 +62,16 @@ def write(out: Path, name: str, data: Any) -> None:
     path.write_text(json.dumps(data, sort_keys=True, separators=(",", ":")) + "\n")
 
 
+def exact_percentile(values: list[Decimal], quantile: str) -> Decimal:
+    """Linear interpolation in decimal arithmetic, so a value exactly halfway rounds the same as in SQL."""
+    ordered = sorted(values)
+    position = Decimal(quantile) * (len(ordered) - 1)
+    lower = int(position)
+    if lower + 1 == len(ordered):
+        return ordered[lower]
+    return ordered[lower] + (ordered[lower + 1] - ordered[lower]) * (position - lower)
+
+
 def monday(day: str) -> date:
     d = date.fromisoformat(day)
     return d - timedelta(days=d.weekday())
@@ -76,8 +86,8 @@ def weekly_snapshots(rows: pd.DataFrame, gid: str, name: str) -> list[dict[str, 
         if valid.empty:
             continue
         latest = valid.sort_values("effective_date").drop_duplicates("ndc11", keep="last")
-        prices = latest["price"].to_numpy(dtype=float)
-        p10, p25, p50, p75, p90 = np.percentile(prices, [10, 25, 50, 75, 90])
+        p10, p25, p50, p75, p90 = (exact_percentile(latest["unit_price"].map(Decimal).tolist(), q)
+                                   for q in ("0.10", "0.25", "0.50", "0.75", "0.90"))
         snapshots.append({
             "groupId": gid, "groupName": name, "asOfWeek": week.isoformat(), "p10": money(p10),
             "p25": money(p25), "p50": money(p50), "p75": money(p75), "p90": money(p90),
@@ -96,7 +106,7 @@ def find_anomalies(sub: pd.DataFrame, listed: set[str], since: str) -> list[dict
     changes["eff_t"] = pd.to_datetime(changes["effective_date"]).astype("int64") // 86_400_000_000_000
     found = []
     pooled = changes.sort_values("as_of_t").tail(20000)
-    for pos, row in enumerate(changes[changes["as_of_date"] >= since].itertuples()):
+    for row in changes[changes["as_of_date"] >= since].itertuples():
         if row.item_id not in listed:
             continue
         pool = changes[changes["group_id"] == row.group_id]

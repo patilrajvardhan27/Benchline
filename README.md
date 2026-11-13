@@ -76,6 +76,26 @@ Details, guardrails and limits: [docs/item-normalization.md](docs/item-normaliza
 
 ---
 
+<img src="docs/images/art/h-dbt.svg" alt="the warehouse (Snowflake + dbt)" width="100%">
+
+<img src="docs/images/art/warehouse.svg" alt="load_gold.py loads items, price points and purchase lines into DuckDB or Snowflake. dbt builds staging views and two marts, the weekly benchmark and the savings opportunity. 28 checks pass and all 681 weekly snapshots match the Python build." width="100%">
+
+The gold tables also load into a warehouse, where dbt rebuilds two of the service's SQL models: the weekly
+p10 to p90 benchmark and the savings opportunity. The same project runs on DuckDB (free, local) and on
+Snowflake. Unit tests pin hand-computed percentiles, data tests guard keys and ordering, and on the 12-drug data
+all 681 weekly snapshots match the Python build value for value.
+
+```bash
+cd warehouse
+uv sync
+uv run python load_gold.py                                   # add --target snowflake for Snowflake
+uv run dbt build --project-dir dbt --profiles-dir dbt        # DBT_TARGET=snowflake for Snowflake
+```
+
+Snowflake setup and connection: [docs/warehouse.md](docs/warehouse.md).
+
+---
+
 <img src="docs/images/art/h-run.svg" alt="run it on your machine" width="100%">
 
 <img src="docs/images/art/run-locally.svg" alt="Three ways to run Benchline: A, just look at the demo with no Docker. B, run the full stack with Docker. C, run the tests." width="100%">
@@ -147,7 +167,7 @@ uv run scripts/build_demo_snapshot.py     # writes web/public/demo from data/sil
 
 <img src="docs/images/art/h-test.svg" alt="run the tests" width="100%">
 
-<img src="docs/images/art/tests.svg" alt="308 tests, none failing: Java 54, pipelines 123, ML service 22, scripts 7, web unit 58, browser 44. WCAG 2.2 AA zero violations including colour contrast in a real browser." width="100%">
+<img src="docs/images/art/tests.svg" alt="338 tests, none failing: Java 56, pipelines 123, ML service 22, scripts 7, dbt 28, web unit 58, browser 44. WCAG 2.2 AA zero violations including colour contrast in a real browser." width="100%">
 
 Everything at once (this is also what CI runs):
 
@@ -168,6 +188,9 @@ cd web && pnpm exec playwright install chromium && pnpm e2e
 cd pipelines  && uv run ruff check . && uv run mypy benchline_pipelines tests && uv run pytest
 cd ml-service && uv run ruff check . && uv run mypy app tests && uv run pytest
 uv run --with pytest --with pandas --with pyarrow --with numpy pytest scripts/tests -q
+
+# Warehouse: dbt models, data tests and unit tests on DuckDB
+cd warehouse && uv run python load_gold.py && uv run dbt build --project-dir dbt --profiles-dir dbt
 
 # Java
 ./gradlew test                # fast: unit and web-layer security tests
@@ -222,6 +245,7 @@ apps/            pricing-api, benchmark-worker (Spring Boot)
 libs/            java-common, test-support
 ml-service/      FastAPI anomaly service
 pipelines/       bronze, silver and gold data jobs
+warehouse/       loader and dbt project (DuckDB locally, Snowflake)
 web/             React + TypeScript (public/demo holds the snapshot)
 contracts/       OpenAPI and event JSON schemas
 db/migrations/   Flyway SQL

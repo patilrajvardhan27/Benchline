@@ -12,6 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 from scenes_a import hero, how_it_works, outbox  # noqa: E402
 from scenes_b import benchmark, funnel, git_push, normalizer, run_locally, tests  # noqa: E402
+from scenes_c import warehouse  # noqa: E402
 from shapes import EMBER_DARK, INK, TEAL_DARK, Canvas  # noqa: E402
 
 OUT = Path(__file__).resolve().parents[1] / "images" / "art"
@@ -20,6 +21,7 @@ BANNERS = {
     "h-look": "what it looks like",
     "h-how": "how it works",
     "h-llm": "cleaning up product names (LiteLLM)",
+    "h-dbt": "the warehouse (Snowflake + dbt)",
     "h-run": "run it on your machine",
     "h-test": "run the tests",
     "h-deploy": "where to host it for free",
@@ -56,7 +58,8 @@ NOTES = {
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     art = {"hero": hero(), "how-it-works": how_it_works(), "outbox": outbox(), "funnel": funnel(), "normalizer": normalizer(),
-           "benchmark": benchmark(), "run-locally": run_locally(), "tests": tests(), "git-push": git_push()}
+           "benchmark": benchmark(), "run-locally": run_locally(), "tests": tests(), "git-push": git_push(),
+           "warehouse": warehouse()}
     for seed, (name, title) in enumerate(BANNERS.items(), 100):
         art[name] = banner(title, seed)
     for seed, (name, (text, color)) in enumerate(NOTES.items(), 200):

@@ -13,8 +13,4 @@ public record SecurityProperties(String devJwtSecret, boolean requireHttps, List
     public SecurityProperties {
         corsAllowedOrigins = corsAllowedOrigins == null ? List.of() : List.copyOf(corsAllowedOrigins);
     }
-
-    public boolean devJwtEnabled() {
-        return devJwtSecret != null && !devJwtSecret.isBlank();
-    }
 }

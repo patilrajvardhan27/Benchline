@@ -16,7 +16,6 @@ from benchline_pipelines.normalize.vocabulary import SALT_WORDS
 if TYPE_CHECKING:
     from benchline_pipelines.normalize.llm import LlmNormalizer
 
-NUMBER = re.compile(r"\d*\.?\d+")
 
 
 def ingredient_set(text: str) -> frozenset[str]:
@@ -38,19 +37,6 @@ def ingredient_core(names: frozenset[str] | set[str]) -> frozenset[str]:
     return frozenset(core)
 
 
-def numbers(text: str) -> list[float]:
-    return [float(n) for n in NUMBER.findall(text.replace(",", ""))]
-
-
-def strength_matches(mine: str, fda_strengths: str) -> bool | None:
-    """True or False when comparable, None for percent strengths (openFDA uses mg/g there)."""
-    if not mine or mine.endswith("%"):
-        return None
-    mine_numbers = numbers(mine.split(" ")[0])
-    theirs = numbers(fda_strengths)
-    return bool(mine_numbers) and all(n in theirs for n in mine_numbers)
-
-
 @dataclass
 class RulesScore:
     ndcs: int = 0
@@ -60,8 +46,6 @@ class RulesScore:
     brand_abstained: int = 0          # brands the rules correctly did not claim to know
     form_compared: int = 0
     form_correct: int = 0
-    strength_compared: int = 0
-    strength_correct: int = 0
     wrong_examples: list[tuple[str, str, str]] = field(default_factory=list)
 
 

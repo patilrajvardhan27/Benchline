@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: stg_items
+    columns:
+      - name: item_id
+        data_tests: [not_null, unique]
+      - name: group_id
+        data_tests: [not_null]
+  - name: stg_price_points
+    columns:
+      - name: item_id
+        data_tests:
+          - not_null
+          - relationships: {arguments: {to: ref('stg_items'), field: item_id}}
+      - name: source
+        data_tests:
+          - accepted_values: {arguments: {values: ['NADAC', 'FSS', 'BIG4', 'NC']}}
+      - name: unit_price
+        data_tests: [not_null]
+  - name: stg_purchase_lines
+    columns:
+      - name: purchase_line_id
+        data_tests: [not_null, unique]
+      - name: item_id
+        data_tests:
+          - relationships: {arguments: {to: ref('stg_items'), field: item_id}}

@@ -63,6 +63,22 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - run: uv run --with pytest --with pandas --with pyarrow --with numpy pytest scripts/tests -q
 
+  warehouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Silver data from the test fixture
+        run: >
+          uv run --project pipelines python -c "from pathlib import Path;
+          from benchline_pipelines.silver.build import build_silver;
+          build_silver([Path('pipelines/tests/fixtures/nadac_sample.csv')], Path('ci-silver'))"
+      - name: Load into DuckDB and build every model, data test and unit test
+        working-directory: warehouse
+        run: |
+          uv run python load_gold.py --silver ../ci-silver/nadac.parquet
+          uv run dbt build --project-dir dbt --profiles-dir dbt
+
   web:
     runs-on: ubuntu-latest
     steps:

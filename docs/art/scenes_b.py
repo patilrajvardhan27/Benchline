@@ -80,13 +80,14 @@ def run_locally() -> str:
 
 
 def tests() -> str:
-    c = Canvas(1200, 640, "What was run and what passed", "Java 54, pipelines 123, ML service 22, scripts 7, web 58, "
-               "browser 44. 308 tests, none failing. Zero accessibility violations.", 17)
-    c.text(60, 70, "308 tests · 0 failing", 54, TEAL_DARK, 700)
-    rows = [("Java: API, worker, shared code", "54", "unit, security, real Postgres, embedded Kafka"),
+    c = Canvas(1200, 680, "What was run and what passed", "Java 56, pipelines 123, ML service 22, scripts 7, dbt 28, "
+               "web 58, browser 44. 338 tests, none failing. Zero accessibility violations.", 17)
+    c.text(60, 70, "338 tests · 0 failing", 54, TEAL_DARK, 700)
+    rows = [("Java: API, worker, shared code", "56", "unit, security, real Postgres, embedded Kafka"),
             ("Python: pipelines + normalizer + LiteLLM", "123", "real Router run offline with mock replies"),
             ("Python: ML service", "22", "2 of them need a database"),
             ("Python: snapshot + synthetic data", "7", "hand-computed percentiles"),
+            ("dbt: warehouse models", "28", "unit tests + data tests on DuckDB"),
             ("Web: unit + component", "58", "every page scanned with axe"),
             ("Web: real browser", "44", "12 pages x desktop and phone")]
     y = 150
@@ -96,8 +97,8 @@ def tests() -> str:
         c.text(700, y, count, 40, TEAL_DARK, 700, "end")
         c.text(730, y, note, 28, MUTED)
         y += 64
-    c.rect(60, 548, 1080, 70, EMBER_PALE, EMBER_DARK)
-    c.text(600, 596, "WCAG 2.2 AA: zero violations, including colour contrast in a real browser", 34, EMBER_DARK, 700, "middle")
+    c.rect(60, 590, 1080, 70, EMBER_PALE, EMBER_DARK)
+    c.text(600, 638, "WCAG 2.2 AA: zero violations, including colour contrast in a real browser", 34, EMBER_DARK, 700, "middle")
     return c.svg()
 
 
@@ -124,7 +125,7 @@ def git_push() -> str:
 
 def normalizer() -> str:
     c = Canvas(1200, 640, "Working out what each product is",
-               "Four layers, cheapest first: openFDA lookup resolves 28,966 NDCs, rules 4,651, a model through LiteLLM "
+               "Four layers, cheapest first: openFDA lookup resolves 28,966 NDCs, rules 4,658, a model through LiteLLM "
                "the remaining 2,432, and a person reviews anything flagged. Measured once on 162 answers: same drug 95%, brand names 96%, reproducible from a committed fixture.", 19)
     c.text(60, 66, "who works out what a product is?  cheapest first.", 40, INK, 700)
     w, h, gap, y = 250, 190, 40, 100

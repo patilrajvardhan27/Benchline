@@ -25,6 +25,9 @@ step "Python: ml-service"
 step "Scripts: snapshot builder and synthetic data"
 uv run --with pytest --with pandas --with pyarrow --with numpy pytest scripts/tests -q
 
+step "Warehouse: dbt on DuckDB"
+(cd warehouse && uv run python load_gold.py && uv run dbt build --project-dir dbt --profiles-dir dbt)
+
 step "Web: types, lint, unit tests, build"
 (cd web && pnpm install --frozen-lockfile && pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm check:bundle)
 

@@ -187,3 +187,12 @@ Thumbs.db
 *.psd
 *.hprof
 *.jfr
+
+# dbt and local warehouse files
+warehouse/dbt/target/
+warehouse/dbt/logs/
+warehouse/dbt/dbt_packages/
+warehouse/dbt/.user.yml
+logs/
+*.duckdb
+*.duckdb.wal

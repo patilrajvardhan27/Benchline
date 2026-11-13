@@ -1,0 +1,95 @@
+version: 2
+
+models:
+  - name: fct_group_benchmark_weekly
+    description: Weekly p10 to p90 per product group.
+    columns:
+      - name: group_id
+        data_tests: [not_null]
+      - name: as_of_week
+        data_tests: [not_null]
+      - name: n_obs
+        data_tests: [not_null]
+
+  - name: fct_savings_opportunity
+    description: Synthetic purchase lines above their group's p25, with the saving.
+    columns:
+      - name: purchase_line_id
+        data_tests: [not_null, unique]
+      - name: savings_amount
+        data_tests: [not_null]
+
+unit_tests:
+  - name: percentiles_match_hand_computed_values
+    description: Five products priced 0.1 to 0.5 give p10 0.14, p25 0.20, p50 0.30, p75 0.40, p90 0.46.
+    model: fct_group_benchmark_weekly
+    given:
+      - input: ref('stg_items')
+        rows:
+          - {item_id: a, group_id: g}
+          - {item_id: b, group_id: g}
+          - {item_id: c, group_id: g}
+          - {item_id: d, group_id: g}
+          - {item_id: e, group_id: g}
+      - input: ref('stg_price_points')
+        rows:
+          - {item_id: a, source: NADAC, unit_price: 0.1, effective_date: 2026-10-28, as_of_date: 2026-11-03}
+          - {item_id: b, source: NADAC, unit_price: 0.2, effective_date: 2026-10-28, as_of_date: 2026-11-03}
+          - {item_id: c, source: NADAC, unit_price: 0.3, effective_date: 2026-10-28, as_of_date: 2026-11-03}
+          - {item_id: d, source: NADAC, unit_price: 0.4, effective_date: 2026-10-28, as_of_date: 2026-11-03}
+          - {item_id: e, source: NADAC, unit_price: 0.5, effective_date: 2026-10-28, as_of_date: 2026-11-03}
+    expect:
+      rows:
+        - {group_id: g, as_of_week: 2026-11-02, p10: 0.14, p25: 0.2, p50: 0.3, p75: 0.4, p90: 0.46, n_obs: 5}
+
+  - name: only_the_latest_rate_in_the_window_counts
+    description: An older rate for the same product is ignored, and a rate older than 52 weeks drops out.
+    model: fct_group_benchmark_weekly
+    given:
+      - input: ref('stg_items')
+        rows:
+          - {item_id: a, group_id: g}
+          - {item_id: b, group_id: g}
+      - input: ref('stg_price_points')
+        rows:
+          - {item_id: a, source: NADAC, unit_price: 9.0, effective_date: 2026-09-01, as_of_date: 2026-09-02}
+          - {item_id: a, source: NADAC, unit_price: 1.0, effective_date: 2026-10-28, as_of_date: 2026-11-03}
+          - {item_id: b, source: NADAC, unit_price: 5.0, effective_date: 2025-01-01, as_of_date: 2026-11-03}
+    expect:
+      rows:
+        - {group_id: g, as_of_week: 2026-08-31, p10: 9.0, p25: 9.0, p50: 9.0, p75: 9.0, p90: 9.0, n_obs: 1}
+        - {group_id: g, as_of_week: 2026-11-02, p10: 1.0, p25: 1.0, p50: 1.0, p75: 1.0, p90: 1.0, n_obs: 1}
+
+  - name: an_exact_half_rounds_up
+    description: p10 of 0.05023 and 0.05078 is exactly 0.050285; floats would round it down.
+    model: fct_group_benchmark_weekly
+    given:
+      - input: ref('stg_items')
+        rows:
+          - {item_id: a, group_id: g}
+          - {item_id: b, group_id: g}
+      - input: ref('stg_price_points')
+        rows:
+          - {item_id: a, source: NADAC, unit_price: 0.05023, effective_date: 2026-10-28, as_of_date: 2026-11-03}
+          - {item_id: b, source: NADAC, unit_price: 0.05078, effective_date: 2026-10-28, as_of_date: 2026-11-03}
+    expect:
+      rows:
+        - {group_id: g, as_of_week: 2026-11-02, p10: 0.05029, n_obs: 2}
+
+  - name: savings_count_only_lines_above_p25
+    model: fct_savings_opportunity
+    given:
+      - input: ref('fct_group_benchmark_weekly')
+        rows:
+          - {group_id: g, as_of_week: 2026-10-26, p25: 0.5, p50: 0.9}
+          - {group_id: g, as_of_week: 2026-11-02, p25: 0.2, p50: 0.3}
+      - input: ref('stg_items')
+        rows:
+          - {item_id: a, group_id: g}
+      - input: ref('stg_purchase_lines')
+        rows:
+          - {purchase_line_id: 1, facility_id: f, item_id: a, unit_price: 0.25, qty: 1000}
+          - {purchase_line_id: 2, facility_id: f, item_id: a, unit_price: 0.15, qty: 1000}
+    expect:
+      rows:
+        - {purchase_line_id: 1, benchmark_p25: 0.2, savings_amount: 50.0}
