@@ -3,7 +3,7 @@ import { demoGet } from "./demo";
 import { ApiError, messageForStatus } from "./errors";
 import { type QueryParams, toQueryString } from "./query";
 
-export interface RequestOptions {
+interface RequestOptions {
   query?: QueryParams;
   token?: string | null;
   signal?: AbortSignal;

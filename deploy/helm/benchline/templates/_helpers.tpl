@@ -39,3 +39,9 @@ app.kubernetes.io/name: {{ . }}
   value: -javaagent:{{ .Values.otel.agentPath }}
 {{- end }}
 {{- end }}
+
+{{/* With in-cluster Postgres the database is part of the release, so migrations cannot run as a
+pre-install hook (the database would not exist yet). With an external database they can, and should. */}}
+{{- define "benchline.migrateAsHook" -}}
+{{- if not .Values.infra.postgres.enabled }}true{{ end -}}
+{{- end }}

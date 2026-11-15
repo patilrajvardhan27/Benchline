@@ -79,6 +79,37 @@ jobs:
           uv run python load_gold.py --silver ../ci-silver/nadac.parquet
           uv run dbt build --project-dir dbt --profiles-dir dbt
 
+  go:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/lag-monitor
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version-file: apps/lag-monitor/go.mod, cache-dependency-path: apps/lag-monitor/go.sum }
+      - name: Formatting
+        run: test -z "$(gofmt -l .)"
+      - run: go vet ./...
+      - name: Tests against an in-memory Kafka
+        run: go test -race ./...
+
+  kubernetes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: helm/kind-action@v1
+        with: { cluster_name: benchline }
+      - uses: azure/setup-helm@v4
+      - name: Build images, install the chart on kind, run helm test
+        run: scripts/kind-up.sh
+      - name: Cluster state on failure
+        if: failure()
+        run: |
+          kubectl get pods,jobs -o wide
+          kubectl describe pods | tail -n 200
+          kubectl logs -l app.kubernetes.io/part-of=benchline --all-containers --tail=80 --prefix
+
   web:
     runs-on: ubuntu-latest
     steps:
@@ -120,7 +151,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   images:
-    needs: [java, python, web]
+    needs: [java, python, go, web]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -134,6 +165,7 @@ jobs:
           - { name: benchline-ml-service, file: deploy/docker/ml.Dockerfile, args: "" }
           - { name: benchline-web, file: deploy/docker/web.Dockerfile, args: "" }
           - { name: benchline-migrate, file: deploy/docker/migrate.Dockerfile, args: "" }
+          - { name: benchline-lag-monitor, file: deploy/docker/lag-monitor.Dockerfile, args: "" }
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3

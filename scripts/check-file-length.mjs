@@ -5,7 +5,7 @@ import { join, relative } from "node:path";
 
 const MAX_LINES = 250;
 const ROOT = new URL("..", import.meta.url).pathname;
-const SOURCE = /\.(java|kts|ts|tsx|js|mjs|py|sql|ya?ml|css|tf|tpl|json)$/;
+const SOURCE = /\.(java|kts|ts|tsx|js|mjs|py|go|sh|sql|ya?ml|css|tf|tpl|json)$/;
 const SKIP_DIR = new Set([
   "node_modules", "build", "dist", "target", ".git", ".gradle", ".venv", "__pycache__",
   ".pytest_cache", ".mypy_cache", ".ruff_cache", "generated", "data", "demo",

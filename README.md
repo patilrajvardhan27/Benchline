@@ -96,6 +96,28 @@ Snowflake setup and connection: [docs/warehouse.md](docs/warehouse.md).
 
 ---
 
+<img src="docs/images/art/h-k8s.svg" alt="Kubernetes, MinIO and a Go lag monitor" width="100%">
+
+<img src="docs/images/art/platform.svg" alt="A kind cluster runs the Helm chart: a migration job, five services with startup, readiness and liveness probes, and a helm test. Raw CMS files go to MinIO through the S3 API. A Go service reports how far each Kafka consumer is behind." width="100%">
+
+- **Kubernetes.** `scripts/kind-up.sh` builds all six images, loads them into a local kind cluster and
+  installs the Helm chart. The Flyway migration runs as a Job that waits for Postgres, every pod has startup,
+  readiness and liveness probes, and `helm test` checks each service and the lag numbers. CI runs the same
+  script on every push.
+- **Object storage.** The fetch step streams each raw CMS file into MinIO through the S3 API, with its
+  SHA-256 and source URL as object metadata; silver reads it back from the bucket. Any S3 endpoint works.
+- **Go lag monitor.** `apps/lag-monitor` reads the committed and end offsets of both consumer groups on the
+  price-event topic and serves `/lag` (JSON) and `/metrics` (Prometheus). Its tests run against an
+  in-memory Kafka.
+
+```bash
+scripts/kind-up.sh                          # needs Docker, kind, kubectl and Helm
+kubectl port-forward svc/lag-monitor 9308   # then open http://localhost:9308/lag
+kind delete cluster --name benchline
+```
+
+---
+
 <img src="docs/images/art/h-run.svg" alt="run it on your machine" width="100%">
 
 <img src="docs/images/art/run-locally.svg" alt="Three ways to run Benchline: A, just look at the demo with no Docker. B, run the full stack with Docker. C, run the tests." width="100%">
@@ -108,6 +130,8 @@ Snowflake setup and connection: [docs/warehouse.md](docs/warehouse.md).
 | Python 3.12 and [uv](https://docs.astral.sh/uv/) | pipelines, ML service, scripts | `uv --version` |
 | JDK 17 or newer (Gradle downloads JDK 21 itself) | the Java services | `java -version` |
 | Docker Desktop | the full stack (path B) and the Docker-based tests | `docker --version` |
+| Go 1.27 | the lag monitor | `go version` |
+| kind and Helm (`brew install kind helm`) | the Kubernetes run | `kind version` |
 
 ### A. Just look (no Docker)
 
@@ -124,14 +148,16 @@ VITE_DEMO_MODE=true pnpm dev
 
 ```bash
 cp .env.example .env
-# edit .env: set POSTGRES_PASSWORD and DEV_JWT_SECRET (32+ characters)
+# edit .env: set POSTGRES_PASSWORD, DEV_JWT_SECRET (32+ characters) and MINIO_ROOT_PASSWORD (8+),
+# and the same MinIO password as AWS_SECRET_ACCESS_KEY
 
-docker compose up -d --build        # Postgres, Kafka, migrations, both Java services, ML service, web
+docker compose up -d --build        # Postgres, Kafka, MinIO, migrations, Java services, ML service, lag monitor, web
 ```
 
-Load real data (about 250 MB download), then replay it through the whole pipeline:
+Load real data (about 250 MB download, stored in MinIO), then replay it through the whole pipeline:
 
 ```bash
+set -a; source .env; set +a                 # MinIO endpoint and keys for the pipelines
 uv run --project pipelines python -m benchline_pipelines fetch --years 2025 2026
 uv run --project pipelines python -m benchline_pipelines silver --contains ATORVASTATIN METFORMIN LISINOPRIL
 
@@ -167,7 +193,7 @@ uv run scripts/build_demo_snapshot.py     # writes web/public/demo from data/sil
 
 <img src="docs/images/art/h-test.svg" alt="run the tests" width="100%">
 
-<img src="docs/images/art/tests.svg" alt="338 tests, none failing: Java 56, pipelines 123, ML service 22, scripts 7, dbt 28, web unit 58, browser 44. WCAG 2.2 AA zero violations including colour contrast in a real browser." width="100%">
+<img src="docs/images/art/tests.svg" alt="349 tests, none failing: Java 56, pipelines 130, ML service 22, scripts 7, dbt 28, Go 4, web unit 58, browser 44. WCAG 2.2 AA zero violations including colour contrast in a real browser." width="100%">
 
 Everything at once (this is also what CI runs):
 
@@ -188,6 +214,9 @@ cd web && pnpm exec playwright install chromium && pnpm e2e
 cd pipelines  && uv run ruff check . && uv run mypy benchline_pipelines tests && uv run pytest
 cd ml-service && uv run ruff check . && uv run mypy app tests && uv run pytest
 uv run --with pytest --with pandas --with pyarrow --with numpy pytest scripts/tests -q
+
+# Go: lag monitor, against an in-memory Kafka
+cd apps/lag-monitor && go vet ./... && go test -race ./...
 
 # Warehouse: dbt models, data tests and unit tests on DuckDB
 cd warehouse && uv run python load_gold.py && uv run dbt build --project-dir dbt --profiles-dir dbt
@@ -241,7 +270,7 @@ forecasting, device classification, live updates. See [docs/data-sources.md](doc
 <img src="docs/images/art/h-layout.svg" alt="what is where" width="100%">
 
 ```
-apps/            pricing-api, benchmark-worker (Spring Boot)
+apps/            pricing-api, benchmark-worker (Spring Boot), lag-monitor (Go)
 libs/            java-common, test-support
 ml-service/      FastAPI anomaly service
 pipelines/       bronze, silver and gold data jobs

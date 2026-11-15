@@ -34,5 +34,18 @@ spec:
     - from:
         - podSelector:
             matchExpressions:
-              - { key: app.kubernetes.io/name, operator: In, values: [pricing-api, benchmark-worker, ml-service] }
+              - { key: app.kubernetes.io/name, operator: In, values: [pricing-api, benchmark-worker, ml-service, migrate, lag-monitor] }
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-smoke-test
+spec:
+  podSelector:
+    matchExpressions:
+      - { key: app.kubernetes.io/name, operator: In, values: [benchmark-worker, ml-service, lag-monitor] }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector: { matchLabels: { app.kubernetes.io/name: smoke } }
 {{- end }}

@@ -1,8 +1,6 @@
 import { vi } from "vitest";
 import { FILES } from "./fixtures";
 
-export { FILES, ITEM } from "./fixtures";
-
 /** Serves the fixtures above as if they were the /demo snapshot files. */
 export function stubSnapshotFetch() {
   const fetchMock = vi.fn((input: RequestInfo | URL) => {

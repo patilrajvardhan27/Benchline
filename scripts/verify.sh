@@ -25,6 +25,9 @@ step "Python: ml-service"
 step "Scripts: snapshot builder and synthetic data"
 uv run --with pytest --with pandas --with pyarrow --with numpy pytest scripts/tests -q
 
+step "Go: lag monitor"
+(cd apps/lag-monitor && test -z "$(gofmt -l .)" && go vet ./... && go test -race ./...)
+
 step "Warehouse: dbt on DuckDB"
 (cd warehouse && uv run python load_gold.py && uv run dbt build --project-dir dbt --profiles-dir dbt)
 

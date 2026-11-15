@@ -196,3 +196,36 @@ warehouse/dbt/.user.yml
 logs/
 *.duckdb
 *.duckdb.wal
+
+# Go
+apps/lag-monitor/lag-monitor
+*.test
+*.out
+go.work
+go.work.sum
+
+# Local clusters and object storage
+kind-*.kubeconfig
+*.kubeconfig
+.minio.sys/
+miniodata/
+
+# Large or bulky folders that never belong in Git (and would need LFS if committed)
+/.cache/
+/tmp/
+/temp/
+/downloads/
+/datasets/
+/models/
+/checkpoints/
+/artifacts/
+*.iso
+*.dmg
+*.img
+*.vmdk
+*.qcow2
+*.npy
+*.npz
+*.ckpt
+*.gguf
+*.whl

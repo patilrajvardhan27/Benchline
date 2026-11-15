@@ -1,6 +1,6 @@
 /** Pure helpers for the SVG charts, kept apart so they can be unit tested. */
 
-export interface Scale {
+interface Scale {
   (value: number): number;
 }
 
@@ -27,7 +27,7 @@ export function niceTicks(min: number, max: number, count = 4): number[] {
   return ticks;
 }
 
-export interface XY { x: number; y: number }
+interface XY { x: number; y: number }
 
 /** Path for a series where the value holds until the next point (a price that stays in force). */
 export function stepPath(points: XY[], endX?: number): string {

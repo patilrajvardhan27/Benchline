@@ -1,6 +1,6 @@
 import type { Item } from "../shared/api/types";
 
-export const ITEM: Item = {
+const ITEM: Item = {
   id: "ndc-00000000001", ndc11: "00000000001", description: "ATORVASTATIN CALCIUM 20 MG TAB",
   groupId: "grp-atorvastatin", groupName: "ATORVASTATIN CALCIUM 20 MG TAB", otc: false,
   latestPrice: "0.03121", latestEffectiveDate: "2026-10-29",

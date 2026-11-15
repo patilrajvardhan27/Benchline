@@ -16,11 +16,12 @@ RUN wget -q -O /agent.jar \
     https://repo.maven.apache.org/maven2/io/opentelemetry/javaagent/opentelemetry-javaagent/${OTEL_AGENT_VERSION}/opentelemetry-javaagent-${OTEL_AGENT_VERSION}.jar
 
 FROM eclipse-temurin:21-jre-alpine
-RUN addgroup -S app && adduser -S app -G app
+# Numeric user so Kubernetes can enforce runAsNonRoot.
+RUN addgroup -S -g 10001 app && adduser -S -u 10001 -G app app
 WORKDIR /app
 COPY --from=build /app.jar app.jar
 COPY --from=otel /agent.jar /otel/agent.jar
-USER app
+USER 10001:10001
 EXPOSE 8080 8081
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75 -XX:+ExitOnOutOfMemoryError"
 ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]

@@ -20,6 +20,9 @@ updates:
   - package-ecosystem: pip
     directory: /warehouse
     schedule: { interval: weekly }
+  - package-ecosystem: gomod
+    directory: /apps/lag-monitor
+    schedule: { interval: weekly }
   - package-ecosystem: docker
     directory: /deploy/docker
     schedule: { interval: weekly }

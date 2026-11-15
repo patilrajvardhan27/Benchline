@@ -66,12 +66,21 @@ DEV_JWT_SECRET=... uv run scripts/export_demo_snapshot.py --out web/public/demo
 ## Kubernetes (kind or AKS)
 
 ```bash
-# kind: build images locally, load them, install
-helm upgrade --install benchline deploy/helm/benchline -f deploy/helm/benchline/values-kind.yaml
+# kind: build all six images, load them into a local cluster, install the chart, run helm test
+scripts/kind-up.sh
+kind delete cluster --name benchline      # when done
 
 # AKS: infrastructure, then the deploy workflow
 cd deploy/terraform && terraform init && terraform apply
 ```
+
+CI runs the same script on every push: the migration Job must complete, every pod must pass its
+startup, readiness and liveness probes, and `helm test` checks each service answers and that the lag
+monitor reports both consumer groups.
+
+With the in-cluster database the migration runs as an ordinary Job that waits for Postgres. With an
+external database (`infra.postgres.enabled=false`, as on AKS) it runs as a pre-install/pre-upgrade hook,
+so the schema is in place before new code rolls out.
 
 The `deploy-aks` workflow signs in with OIDC federation, so no cloud credential is stored in GitHub.
 Set repository variables from the Terraform outputs (`terraform output`).

@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 
 from benchline_pipelines.bronze.fetch import fetch_nadac
+from benchline_pipelines.bronze.store import default_location, open_store
 from benchline_pipelines.gold.auth import token_from_env
 from benchline_pipelines.gold.replay import replay
 from benchline_pipelines.normalize.cli import add_normalize_commands, run_normalize_command
@@ -19,15 +20,14 @@ DEFAULT_DATA = Path("data")
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="benchline_pipelines")
     parser.add_argument("--data-dir", type=Path, default=DEFAULT_DATA)
+    parser.add_argument("--bronze", help="s3://bucket or a folder; default $BENCHLINE_BRONZE_URI or <data-dir>/bronze")
     sub = parser.add_subparsers(dest="command", required=True)
 
     fetch = sub.add_parser("fetch", help="download raw NADAC files (bronze)")
     fetch.add_argument("--years", type=int, nargs="+", default=[2025, 2026])
 
     silver = sub.add_parser("silver", help="clean and validate (silver)")
-    silver.add_argument(
-        "--bronze-run", type=Path, help="bronze/nadac/<date> folder; default latest"
-    )
+    silver.add_argument("--bronze-run", help="download date of the bronze run, YYYY-MM-DD; default latest")
     silver.add_argument(
         "--contains", nargs="*", default=[],
         help="keep only descriptions containing any of these words (keeps laptops happy)",
@@ -42,23 +42,20 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _latest_bronze_run(data_dir: Path) -> Path:
-    runs = sorted((data_dir / "bronze" / "nadac").glob("*"))
-    if not runs:
-        raise SystemExit("No bronze data found. Run the fetch command first.")
-    return runs[-1]
-
-
 def main(argv: list[str] | None = None) -> None:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     args = _parser().parse_args(argv)
     data: Path = args.data_dir
+    bronze = open_store(args.bronze or default_location(data))
 
     if args.command == "fetch":
-        fetch_nadac(args.years, data / "bronze")
+        fetch_nadac(args.years, bronze)
     elif args.command == "silver":
-        run = args.bronze_run or _latest_bronze_run(data)
-        report = build_silver(sorted(run.glob("nadac_*.csv")), data / "silver", args.contains)
+        runs = bronze.runs()
+        if not runs:
+            raise SystemExit("No bronze data found. Run the fetch command first.")
+        files = bronze.files(args.bronze_run or runs[-1], data / "bronze-cache")
+        report = build_silver(files, data / "silver", args.contains)
         print(f"read={report.rows_read} rejected={report.rows_rejected} "
               f"duplicates={report.rows_duplicate} written={report.rows_written}")
     elif args.command in ("normalize", "normalize-eval", "normalize-probe"):

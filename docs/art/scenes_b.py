@@ -80,14 +80,15 @@ def run_locally() -> str:
 
 
 def tests() -> str:
-    c = Canvas(1200, 680, "What was run and what passed", "Java 56, pipelines 123, ML service 22, scripts 7, dbt 28, "
-               "web 58, browser 44. 338 tests, none failing. Zero accessibility violations.", 17)
-    c.text(60, 70, "338 tests · 0 failing", 54, TEAL_DARK, 700)
+    c = Canvas(1200, 744, "What was run and what passed", "Java 56, pipelines 130, ML service 22, scripts 7, dbt 28, "
+               "Go 4, web 58, browser 44. 349 tests, none failing. Zero accessibility violations.", 17)
+    c.text(60, 70, "349 tests · 0 failing", 54, TEAL_DARK, 700)
     rows = [("Java: API, worker, shared code", "56", "unit, security, real Postgres, embedded Kafka"),
-            ("Python: pipelines + normalizer + LiteLLM", "123", "real Router run offline with mock replies"),
+            ("Python: pipelines + normalizer + LiteLLM", "130", "LiteLLM Router and S3 storage, offline"),
             ("Python: ML service", "22", "2 of them need a database"),
             ("Python: snapshot + synthetic data", "7", "hand-computed percentiles"),
             ("dbt: warehouse models", "28", "unit tests + data tests on DuckDB"),
+            ("Go: lag monitor", "4", "against an in-memory Kafka"),
             ("Web: unit + component", "58", "every page scanned with axe"),
             ("Web: real browser", "44", "12 pages x desktop and phone")]
     y = 150
@@ -97,8 +98,8 @@ def tests() -> str:
         c.text(700, y, count, 40, TEAL_DARK, 700, "end")
         c.text(730, y, note, 28, MUTED)
         y += 64
-    c.rect(60, 590, 1080, 70, EMBER_PALE, EMBER_DARK)
-    c.text(600, 638, "WCAG 2.2 AA: zero violations, including colour contrast in a real browser", 34, EMBER_DARK, 700, "middle")
+    c.rect(60, 654, 1080, 70, EMBER_PALE, EMBER_DARK)
+    c.text(600, 702, "WCAG 2.2 AA: zero violations, including colour contrast in a real browser", 34, EMBER_DARK, 700, "middle")
     return c.svg()
 
 

@@ -2,7 +2,7 @@ import { createContext, type ReactNode, useCallback, useContext, useEffect, useM
 import type { UserManager } from "oidc-client-ts";
 import { config } from "../config";
 
-export type AuthStatus = "demo" | "unconfigured" | "anonymous" | "authenticated";
+type AuthStatus = "demo" | "unconfigured" | "anonymous" | "authenticated";
 
 interface AuthValue {
   status: AuthStatus;

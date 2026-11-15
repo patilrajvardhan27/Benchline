@@ -1,0 +1,35 @@
+# helm test: every service answers its readiness check, and the lag monitor reports both consumer groups.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: benchline-smoke
+  labels:
+    {{- include "benchline.labels" . | nindent 4 }}
+    {{- include "benchline.selector" "smoke" | nindent 4 }}
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    seccompProfile: { type: RuntimeDefault }
+  containers:
+    - name: smoke
+      image: {{ .Values.smokeTest.image }}
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities: { drop: [ALL] }
+      command:
+        - sh
+        - -ec
+        - |
+          {{- range $name, $svc := .Values.services }}
+          wget -q -O /dev/null http://{{ $name }}:{{ $svc.port }}{{ $svc.probes.ready }} && echo "{{ $name }} ready"
+          {{- end }}
+          metrics=$(wget -q -O - http://lag-monitor:{{ index .Values.services "lag-monitor" "port" }}/metrics)
+          for group in benchmark-worker ml-anomaly; do
+            echo "$metrics" | grep "benchline_consumer_lag_total{group=\"$group\""
+          done

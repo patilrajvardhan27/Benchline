@@ -1,19 +1,33 @@
-# Applies Flyway migrations before the application pods start or upgrade.
+# Applies Flyway migrations. A pre-install/pre-upgrade hook for an external database; a plain Job,
+# waiting for the in-cluster database, otherwise.
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: benchline-migrate
   labels:
     {{- include "benchline.labels" . | nindent 4 }}
+  {{- if include "benchline.migrateAsHook" . }}
   annotations:
     helm.sh/hook: pre-install,pre-upgrade
     helm.sh/hook-weight: "5"
     helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+  {{- end }}
 spec:
   backoffLimit: 3
+  ttlSecondsAfterFinished: 3600
   template:
+    metadata:
+      labels:
+        {{- include "benchline.selector" "migrate" | nindent 8 }}
     spec:
       restartPolicy: OnFailure
+      automountServiceAccountToken: false
+      {{- if .Values.infra.postgres.enabled }}
+      initContainers:
+        - name: wait-for-postgres
+          image: {{ .Values.infra.postgres.image }}
+          command: ["sh", "-c", "until pg_isready -h {{ .Values.postgres.host }} -p {{ .Values.postgres.port }}; do sleep 2; done"]
+      {{- end }}
       containers:
         - name: migrate
           image: {{ include "benchline.image" (dict "root" . "image" .Values.migrate.image) }}

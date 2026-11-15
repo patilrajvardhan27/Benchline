@@ -34,3 +34,32 @@ def warehouse() -> str:
     c.text(60, 560, "free locally with DuckDB. on a Snowflake trial: an X-Small warehouse that suspends after 60s.",
            27, MUTED)
     return c.svg()
+
+
+def platform() -> str:
+    c = Canvas(1200, 640, "Benchline on Kubernetes, with MinIO and a Go lag monitor",
+               "A kind cluster runs the chart: a migration job, five services with startup, readiness and liveness "
+               "probes, and a helm test. Raw CMS files go to MinIO through the S3 API. A Go service reports how far "
+               "each Kafka consumer is behind.", 21)
+    c.text(60, 62, "the same chart on a laptop (kind) and in CI, on every push", 38, INK, 700)
+    c.rect(40, 90, 760, 400, TEAL_PALE, TEAL_DARK)
+    c.text(64, 132, "kind cluster  ·  helm install", 32, TEAL_DARK, 700)
+    c.box(64, 156, 220, 110, "migrate job", "waits for postgres, then Flyway", "#ffffff", INK, 30, 22)
+    pods = ["pricing-api", "benchmark-worker", "ml-service", "web", "lag-monitor"]
+    for n, name in enumerate(pods):
+        x, y = 310 + (n % 2) * 240, 156 + (n // 2) * 70
+        c.rect(x, y, 220, 54, EMBER_PALE if name == "lag-monitor" else "#ffffff",
+               EMBER_DARK if name == "lag-monitor" else TEAL_DARK)
+        c.text(x + 110, y + 36, name, 27, INK, 700, "middle")
+    c.arrow(286, 210, 304, 210, INK)
+    c.text(64, 400, "every pod: startup, ready and live probes", 28, INK, 500)
+    c.text(64, 440, "then helm test calls each one and reads the lag", 28, INK, 500)
+    c.rect(840, 90, 320, 180, "#ffffff", INK)
+    c.text(1000, 134, "MinIO (S3 API)", 32, INK, 700, "middle")
+    c.paragraph(860, 174, "raw CMS files, untouched, each with its SHA-256", 280, 26, MUTED, 500)
+    c.rect(840, 300, 320, 190, EMBER_PALE, EMBER_DARK)
+    c.text(1000, 344, "lag-monitor (Go)", 32, EMBER_DARK, 700, "middle")
+    c.paragraph(860, 384, "events each consumer has not read yet, per partition. /metrics", 280, 26, INK, 500)
+    c.text(60, 560, "benchline_consumer_lag_total{group=\"benchmark-worker\"} 0", 30, TEAL_DARK, 700)
+    c.text(60, 604, "zero means caught up. a number that keeps rising means a stuck worker.", 27, MUTED)
+    return c.svg()

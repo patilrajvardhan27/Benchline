@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Skeleton } from "./Skeleton";
 
-export interface Stat {
+interface Stat {
   label: string;
   value: ReactNode;
 }

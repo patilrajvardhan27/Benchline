@@ -17,6 +17,10 @@ spec:
       labels:
         {{- include "benchline.labels" $ | nindent 8 }}
         {{- include "benchline.selector" $name | nindent 8 }}
+      {{- with $svc.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       automountServiceAccountToken: false
       securityContext:
@@ -58,13 +62,16 @@ spec:
               value: {{ $value | quote }}
             {{- end }}
             {{- end }}
+          # The startup probe holds off liveness until the app is up, so a slow JVM start is not killed.
+          startupProbe:
+            httpGet: { path: {{ $svc.probes.live }}, port: http }
+            periodSeconds: 5
+            failureThreshold: {{ div $svc.probes.startSeconds 5 }}
           readinessProbe:
-            httpGet: { path: {{ $svc.probe }}{{ if eq $svc.probe "/actuator/health" }}/readiness{{ end }}, port: http }
-            initialDelaySeconds: 10
+            httpGet: { path: {{ $svc.probes.ready }}, port: http }
             periodSeconds: 10
           livenessProbe:
-            httpGet: { path: {{ $svc.probe }}{{ if eq $svc.probe "/actuator/health" }}/liveness{{ end }}, port: http }
-            initialDelaySeconds: 30
+            httpGet: { path: {{ $svc.probes.live }}, port: http }
             periodSeconds: 20
           resources:
             {{- toYaml $svc.resources | nindent 12 }}

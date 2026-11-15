@@ -1,5 +1,5 @@
 # Local stack. Everything listens on 127.0.0.1 only.
-#   cp .env.example .env   (set POSTGRES_PASSWORD and DEV_JWT_SECRET)
+#   cp .env.example .env   (set POSTGRES_PASSWORD, DEV_JWT_SECRET and MINIO_ROOT_PASSWORD)
 #   docker compose up -d --build
 #   docker compose --profile observability up -d    (adds tracing and dashboards)
 
@@ -61,7 +61,7 @@ services:
       retries: 20
 
   flagd:
-    image: ghcr.io/open-feature/flagd:v0.19.2
+    image: ghcr.io/open-feature/flagd:v0.18.2
     command: ["start", "--uri", "file:/etc/flagd/flags.flagd.json"]
     volumes: ["./deploy/flagd/flags.flagd.json:/etc/flagd/flags.flagd.json:ro"]
     ports: ["127.0.0.1:8013:8013"]
@@ -101,6 +101,25 @@ services:
       ML_KAFKA_BOOTSTRAP: kafka:29092
     depends_on:
       migrate: { condition: service_completed_successfully }
+      kafka: { condition: service_healthy }
+
+  # S3-compatible object store for the raw (bronze) CMS files. Console on http://localhost:9001
+  minio:
+    # The official images left Docker Hub in 2026; this is MinIO built from source by Chainguard, pinned by digest.
+    image: cgr.dev/chainguard/minio@sha256:18c8fa28697b25e0f34c6faae171079e88a03efb8e76a21d3b5d07b4e3cbef3e
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-benchline}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD in .env (8+ characters)}
+    ports: ["127.0.0.1:9000:9000", "127.0.0.1:9001:9001"]
+    volumes: [miniodata:/data]
+
+  lag-monitor:
+    build: { context: ., dockerfile: deploy/docker/lag-monitor.Dockerfile }
+    environment:
+      KAFKA_BOOTSTRAP: kafka:29092
+    ports: ["127.0.0.1:9308:9308"]
+    depends_on:
       kafka: { condition: service_healthy }
 
   web:
@@ -144,3 +163,4 @@ services:
 volumes:
   pgdata:
   kafkadata:
+  miniodata:
