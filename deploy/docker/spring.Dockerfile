@@ -10,7 +10,7 @@ RUN ./gradlew --no-daemon -q :apps:${APP}:bootJar -x test \
  && cp apps/${APP}/build/libs/${APP}.jar /app.jar
 
 # OpenTelemetry agent. Turned on at runtime with JAVA_TOOL_OPTIONS=-javaagent:/otel/agent.jar
-FROM alpine:3.22 AS otel
+FROM alpine:3.24 AS otel
 ARG OTEL_AGENT_VERSION=2.33.1
 RUN wget -q -O /agent.jar \
     https://repo.maven.apache.org/maven2/io/opentelemetry/javaagent/opentelemetry-javaagent/${OTEL_AGENT_VERSION}/opentelemetry-javaagent-${OTEL_AGENT_VERSION}.jar
