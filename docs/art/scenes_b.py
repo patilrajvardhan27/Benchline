@@ -80,17 +80,17 @@ def run_locally() -> str:
 
 
 def tests() -> str:
-    c = Canvas(1200, 744, "What was run and what passed", "Java 56, pipelines 130, ML service 22, scripts 7, dbt 28, "
-               "Go 4, web 58, browser 44. 349 tests, none failing. Zero accessibility violations.", 17)
-    c.text(60, 70, "349 tests · 0 failing", 54, TEAL_DARK, 700)
+    c = Canvas(1200, 744, "What was run and what passed", "Java 56, pipelines 130, ML service 60, scripts 7, dbt 28, "
+               "Go 4, web 83, browser 58. 426 tests, none failing. Zero accessibility violations.", 17)
+    c.text(60, 70, "426 tests · 0 failing", 54, TEAL_DARK, 700)
     rows = [("Java: API, worker, shared code", "56", "unit, security, real Postgres, embedded Kafka"),
             ("Python: pipelines + normalizer + LiteLLM", "130", "LiteLLM Router and S3 storage, offline"),
-            ("Python: ML service", "22", "2 of them need a database"),
+            ("Python: ML service + agent", "60", "6 of them need a database"),
             ("Python: snapshot + synthetic data", "7", "hand-computed percentiles"),
             ("dbt: warehouse models", "28", "unit tests + data tests on DuckDB"),
             ("Go: lag monitor", "4", "against an in-memory Kafka"),
-            ("Web: unit + component", "58", "every page scanned with axe"),
-            ("Web: real browser", "44", "12 pages x desktop and phone")]
+            ("Web: unit + component", "83", "agent store, stream, panel"),
+            ("Web: real browser", "58", "13 pages + agent runs, 2 screens")]
     y = 150
     for label, count, note in rows:
         c.check(60, y - 30, 34)

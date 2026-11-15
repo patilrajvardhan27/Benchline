@@ -2,6 +2,7 @@ import { z } from "zod";
 
 const schema = z.object({
   VITE_API_BASE_URL: z.string().default(""),
+  VITE_AGENT_BASE_URL: z.string().default(""),
   VITE_DEMO_MODE: z.string().default("false"),
   VITE_CONTACT_EMAIL: z.string().default("patilrajvardhan27@gmail.com"),
   VITE_OPERATOR_NAME: z.string().default("Benchline maintainer"),
@@ -14,6 +15,7 @@ const schema = z.object({
 // copy every VITE_ value into the bundle, including ones this file never reads.
 const env = schema.parse({
   VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+  VITE_AGENT_BASE_URL: import.meta.env.VITE_AGENT_BASE_URL,
   VITE_DEMO_MODE: import.meta.env.VITE_DEMO_MODE,
   VITE_CONTACT_EMAIL: import.meta.env.VITE_CONTACT_EMAIL,
   VITE_OPERATOR_NAME: import.meta.env.VITE_OPERATOR_NAME,
@@ -27,6 +29,8 @@ const env = schema.parse({
 /** Public, build-time settings. Nothing secret belongs here: it ships to every browser. */
 export const config = {
   apiBaseUrl: env.VITE_API_BASE_URL.replace(/\/$/, ""),
+  // The agent runs in the ML service; behind the ingress it shares the API origin.
+  agentBaseUrl: (env.VITE_AGENT_BASE_URL || env.VITE_API_BASE_URL).replace(/\/$/, ""),
   demoMode: env.VITE_DEMO_MODE === "true",
   contactEmail: env.VITE_CONTACT_EMAIL,
   operatorName: env.VITE_OPERATOR_NAME,

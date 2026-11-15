@@ -1,0 +1,12 @@
+[
+  {
+    "id": "fair-price-sertraline",
+    "question": "Is $0.06 per tablet a fair price for sertraline 50 mg?",
+    "model": "scripted"
+  },
+  {
+    "id": "odd-moves-omeprazole",
+    "question": "Have there been any unusual price moves for omeprazole 20 mg?",
+    "model": "scripted"
+  }
+]

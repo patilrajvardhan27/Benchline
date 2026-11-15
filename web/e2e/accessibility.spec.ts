@@ -7,6 +7,7 @@ const ROUTES: [string, string][] = [
   ["/items/ndc-00000000001", "ATORVASTATIN CALCIUM 20 MG TAB"],
   ["/opportunities", "Savings opportunities"],
   ["/anomalies", "Anomaly review"],
+  ["/ask", "Ask Benchline"],
   ["/about", "About Benchline"],
   ["/terms", "Terms of Service"],
   ["/privacy", "Privacy Policy"],

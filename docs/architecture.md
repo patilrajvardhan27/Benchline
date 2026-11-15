@@ -19,6 +19,7 @@ benchmark-worker            ml-service                 lag-monitor (Go)
          +---- PostgreSQL 16 ----+
                     ^
 web (React) --REST--> pricing-api      flagd (OpenFeature) --> pricing-api
+            --SSE---> ml-service /api/v1/agent/runs  (agent: model via LiteLLM + 3 read-only tools)
 ```
 
 Contracts are in `contracts/openapi` (split by path and schema) and `contracts/events`. TypeScript
@@ -37,7 +38,7 @@ the silver and gold layers and is described in [item-normalization.md](item-norm
 | `apps/lag-monitor` | Go service: how far each consumer group is behind, as JSON and Prometheus metrics |
 | `libs/java-common` | Problem+json errors, event envelope, outbox, paging, money, flags, idempotency |
 | `libs/test-support` | Shared PostgreSQL base class for integration tests |
-| `ml-service` | FastAPI app with the anomaly consumer |
+| `ml-service` | FastAPI app: the anomaly consumer, and the Ask Benchline agent (`app/agent`) |
 | `pipelines` | Download (to MinIO or a folder), clean and replay NADAC data |
 | `warehouse` | Loader and dbt models for DuckDB and Snowflake |
 | `web` | React and TypeScript app |
@@ -51,3 +52,5 @@ The OpenTelemetry Java agent is baked into the Spring images and switched on wit
 timer, from event creation to stored benchmark. The Go `lag-monitor` reports how many events each
 consumer group has not processed yet (`benchline_consumer_lag_total`), so a stalled worker shows up
 as a rising number. Compose profile `observability` adds a collector and Grafana.
+
+The agent panel's design, event contract and failure handling: [design/agent-panel.md](design/agent-panel.md).

@@ -16,7 +16,7 @@ import time
 
 import jwt
 
-SCOPES = "prices:write members:read insights:read insights:write"
+SCOPES = "prices:write members:read insights:read insights:write agent:run"
 LIFETIME_SECONDS = 8 * 3600
 
 

@@ -23,6 +23,11 @@ How each hardening area is handled, where to look, and what is still open.
 - Input is validated (`jakarta.validation`), SQL is parameterized, page size is capped at 100,
   search text is escaped for `LIKE`.
 - Tested in `ApiSecurityTest`: 401 without a token, 403 with the wrong scope, unknown routes denied.
+- The Ask Benchline agent (ML service) checks the same tokens and needs scope `agent:run`. Its tools are
+  read-only by construction: each query runs in a read-only transaction with a 3 second timeout, and arguments
+  are validated before any lookup. Tool output is treated as data, never as instructions, and there is no write
+  path for a prompt to reach. Limits: one run at a time and 20 an hour per user, 6 steps per run, a daily spend
+  cap. Tested in `test_agent_api.py` and `test_agent_tools_db.py`.
 
 ## 3. Dependencies
 

@@ -1,0 +1,39 @@
+: Recorded from Benchline's agent stream over the demo snapshot. Model: scripted.
+: Re-record with: uv run python -m app.agent.record
+
+id: 0
+event: run
+data: {"run_id":"recorded"}
+
+id: 1
+event: thinking
+data: {"text":"I'll list the flagged price moves for omeprazole 20 mg."}
+
+id: 2
+event: tool_call
+data: {"call_id":"call_0_0","name":"list_anomalies","arguments":"{\"drug\": \"omeprazole 20 mg\", \"limit\": 5}","label":"Flagged price moves for omeprazole 20 mg"}
+
+id: 3
+event: tool_result
+data: {"call_id":"call_0_0","name":"list_anomalies","ok":true,"summary":"5 flagged price moves for omeprazole 20 mg","citations":[{"item_id":"ndc-16714063401","label":"OMEPRAZOLE DR 20 MG CAPSULE (NDC 16714063401)","href":"/items/ndc-16714063401"},{"item_id":"ndc-68382041201","label":"OMEPRAZOLE DR 20 MG CAPSULE (NDC 68382041201)","href":"/items/ndc-68382041201"},{"item_id":"ndc-16714063402","label":"OMEPRAZOLE DR 20 MG CAPSULE (NDC 16714063402)","href":"/items/ndc-16714063402"},{"item_id":"ndc-60505006502","label":"OMEPRAZOLE DR 20 MG CAPSULE (NDC 60505006502)","href":"/items/ndc-60505006502"},{"item_id":"ndc-68462039601","label":"OMEPRAZOLE DR 20 MG CAPSULE (NDC 68462039601)","href":"/items/ndc-68462039601"}]}
+
+id: 4
+event: thinking
+data: {"text":"Getting the benchmark so the moves have context."}
+
+id: 5
+event: tool_call
+data: {"call_id":"call_1_0","name":"get_benchmark","arguments":"{\"drug\": \"omeprazole 20 mg\"}","label":"Benchmark for omeprazole 20 mg"}
+
+id: 6
+event: tool_result
+data: {"call_id":"call_1_0","name":"get_benchmark","ok":true,"summary":"OMEPRAZOLE DR 20 MG CAPSULE, week of 2026-10-19: median $0.03045 per unit across 44 products","citations":[{"item_id":"ndc-16714071501","label":"OMEPRAZOLE DR 20 MG CAPSULE (NDC 16714071501)","href":"/items/ndc-16714071501"},{"item_id":"ndc-16714071502","label":"OMEPRAZOLE DR 20 MG CAPSULE (NDC 16714071502)","href":"/items/ndc-16714071502"}]}
+
+id: 7
+event: answer
+data: {"text":"5 recent price moves for OMEPRAZOLE DR 20 MG CAPSULE are flagged. The largest is OMEPRAZOLE DR 20 MG CAPSULE (NDC 16714063401): $0.02768 to $0.02945 on 2026-09-23 (+6.4%), score 4.896. The group's median is $0.03045, so check the item page before treating the new price as the market.","citations":[{"item_id":"ndc-16714063401","label":"OMEPRAZOLE DR 20 MG CAPSULE (NDC 16714063401)","href":"/items/ndc-16714063401"}]}
+
+id: 8
+event: done
+data: {"steps":3,"tokens":0,"cost_usd":0.0}
+

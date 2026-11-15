@@ -76,6 +76,42 @@ Details, guardrails and limits: [docs/item-normalization.md](docs/item-normaliza
 
 ---
 
+<img src="docs/images/art/h-ask.svg" alt="Ask Benchline (an agent with three tools)" width="100%">
+
+<img src="docs/images/art/agent.svg" alt="The browser posts a question to the ML service. A loop asks the model through LiteLLM, runs the read-only tools it asks for, and streams every step back over Server-Sent Events: thinking, tool call, tool result, answer, done. A stream without done is a dropped stream and can be retried." width="100%">
+
+Ask a question in plain words and watch the answer being worked out. A FastAPI endpoint in the ML service
+runs a small tool-calling loop through the same LiteLLM setup as the normalizer, with three read-only tools:
+`get_benchmark`, `list_anomalies` and `find_equivalents`. Each step streams to the browser over SSE, and the
+panel shows it live: a collapsible trace of every tool call, a skeleton for the step in progress, and an answer
+whose sources link to the item pages. Cancel, retry and a dropped stream are all handled, and a polite live
+region tells screen reader users what is happening without reading out the trace.
+
+Design first: [docs/design/agent-panel.md](docs/design/agent-panel.md) (event contract, states, failure
+handling, accessibility), with a table of where the build differs from it and why.
+
+| Desktop, with a tool call opened | Phone |
+|---|---|
+| <img src="docs/images/08-ask-benchline.png" alt="Ask Benchline on desktop: the question, the thinking lines, three tool calls with one opened to show its arguments and five linked products, then the answer with its source." width="100%"> | <img src="docs/images/09-ask-mobile.png" alt="Ask Benchline on a phone: the same run, stacked in one column." width="100%"> |
+
+- **State:** a Zustand store holds the conversation and run state, with selectors for the active turn, whether a
+  run is going, the pending step (which drives the skeletons) and the live-region message.
+- **Guard rails:** a token with scope `agent:run`, a per-user rate limit, at most 6 steps, read-only SQL with
+  a 3 second timeout, and a daily spend cap.
+- **Tests without a key:** the public demo and the Playwright tests replay streams recorded from the server's
+  own encoder with a scripted model over the demo data, and a Python test fails if the server's output ever
+  drifts from those recordings.
+
+```bash
+# full stack: set BENCHLINE_LLM_MODEL and its key in .env, then
+docker compose up -d --build ml-service web
+# re-record the demo streams (free), or from a real model (a few cents)
+cd ml-service && uv run python -m app.agent.record
+cd ml-service && uv run python -m app.agent.record --live
+```
+
+---
+
 <img src="docs/images/art/h-dbt.svg" alt="the warehouse (Snowflake + dbt)" width="100%">
 
 <img src="docs/images/art/warehouse.svg" alt="load_gold.py loads items, price points and purchase lines into DuckDB or Snowflake. dbt builds staging views and two marts, the weekly benchmark and the savings opportunity. 28 checks pass and all 681 weekly snapshots match the Python build." width="100%">
@@ -193,7 +229,7 @@ uv run scripts/build_demo_snapshot.py     # writes web/public/demo from data/sil
 
 <img src="docs/images/art/h-test.svg" alt="run the tests" width="100%">
 
-<img src="docs/images/art/tests.svg" alt="349 tests, none failing: Java 56, pipelines 130, ML service 22, scripts 7, dbt 28, Go 4, web unit 58, browser 44. WCAG 2.2 AA zero violations including colour contrast in a real browser." width="100%">
+<img src="docs/images/art/tests.svg" alt="426 tests, none failing: Java 56, pipelines 130, ML service 60, scripts 7, dbt 28, Go 4, web unit 83, browser 58. WCAG 2.2 AA zero violations including colour contrast in a real browser." width="100%">
 
 Everything at once (this is also what CI runs):
 

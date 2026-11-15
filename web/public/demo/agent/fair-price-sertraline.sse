@@ -1,0 +1,47 @@
+: Recorded from Benchline's agent stream over the demo snapshot. Model: scripted.
+: Re-record with: uv run python -m app.agent.record
+
+id: 0
+event: run
+data: {"run_id":"recorded"}
+
+id: 1
+event: thinking
+data: {"text":"I'll check the benchmark for sertraline 50 mg and the equivalent products."}
+
+id: 2
+event: tool_call
+data: {"call_id":"call_0_0","name":"get_benchmark","arguments":"{\"drug\": \"sertraline 50 mg\"}","label":"Benchmark for sertraline 50 mg"}
+
+id: 3
+event: tool_result
+data: {"call_id":"call_0_0","name":"get_benchmark","ok":true,"summary":"SERTRALINE HCL 50 MG TABLET, week of 2026-10-19: median $0.03484 per unit across 46 products","citations":[{"item_id":"ndc-16729021615","label":"SERTRALINE HCL 50 MG TABLET (NDC 16729021615)","href":"/items/ndc-16729021615"},{"item_id":"ndc-16729021616","label":"SERTRALINE HCL 50 MG TABLET (NDC 16729021616)","href":"/items/ndc-16729021616"}]}
+
+id: 4
+event: tool_call
+data: {"call_id":"call_0_1","name":"find_equivalents","arguments":"{\"drug\": \"sertraline 50 mg\"}","label":"Equivalent products for sertraline 50 mg"}
+
+id: 5
+event: tool_result
+data: {"call_id":"call_0_1","name":"find_equivalents","ok":true,"summary":"40 equivalent products for SERTRALINE HCL 50 MG TABLET; cheapest $0.03457 per unit","citations":[{"item_id":"ndc-16729021615","label":"SERTRALINE HCL 50 MG TABLET (NDC 16729021615)","href":"/items/ndc-16729021615"},{"item_id":"ndc-16729021616","label":"SERTRALINE HCL 50 MG TABLET (NDC 16729021616)","href":"/items/ndc-16729021616"},{"item_id":"ndc-71093013001","label":"SERTRALINE HCL 50 MG TABLET (NDC 71093013001)","href":"/items/ndc-71093013001"},{"item_id":"ndc-71093013003","label":"SERTRALINE HCL 50 MG TABLET (NDC 71093013003)","href":"/items/ndc-71093013003"},{"item_id":"ndc-71093013005","label":"SERTRALINE HCL 50 MG TABLET (NDC 71093013005)","href":"/items/ndc-71093013005"}]}
+
+id: 6
+event: thinking
+data: {"text":"Checking for unusual recent price moves in the same group."}
+
+id: 7
+event: tool_call
+data: {"call_id":"call_1_0","name":"list_anomalies","arguments":"{\"drug\": \"sertraline 50 mg\", \"limit\": 5}","label":"Flagged price moves for sertraline 50 mg"}
+
+id: 8
+event: tool_result
+data: {"call_id":"call_1_0","name":"list_anomalies","ok":true,"summary":"0 flagged price moves for sertraline 50 mg","citations":[]}
+
+id: 9
+event: answer
+data: {"text":"$0.06 per tablet is above the p90 for SERTRALINE HCL 50 MG TABLET. For the week of 2026-10-19 the median is $0.03484, the p25 $0.03484 and the p90 $0.03484, across 46 products. The cheapest equivalent is SERTRALINE HCL 50 MG TABLET (NDC 16729021615) at $0.03457. No unusual price moves are flagged for this group. These are NADAC prices, what retail pharmacies pay on average, not a hospital contract price.","citations":[{"item_id":"ndc-16729021615","label":"SERTRALINE HCL 50 MG TABLET (NDC 16729021615)","href":"/items/ndc-16729021615"}]}
+
+id: 10
+event: done
+data: {"steps":3,"tokens":0,"cost_usd":0.0}
+

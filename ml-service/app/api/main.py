@@ -1,4 +1,4 @@
-"""FastAPI app: health endpoints, plus the anomaly consumer in the background."""
+"""FastAPI app: health endpoints, the Ask Benchline agent, and the anomaly consumer."""
 
 from __future__ import annotations
 
@@ -8,9 +8,12 @@ from contextlib import asynccontextmanager
 
 import psycopg
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.requests import Request
 
+from app.agent.api import router as agent_router
+from app.agent.setup import build_agent_service
 from app.anomaly.worker import AnomalyWorker
 from app.core.config import get_settings
 
@@ -23,10 +26,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     worker = AnomalyWorker(settings)
     if settings.consumer_enabled:
         worker.start()
+    app.state.agent, close_agent = build_agent_service(settings)
     try:
         yield
     finally:
         worker.stop()
+        close_agent()
 
 
 app = FastAPI(
@@ -35,6 +40,16 @@ app = FastAPI(
     docs_url=None,  # no interactive docs on a service that is not public
     redoc_url=None,
     openapi_url=None,
+)
+app.include_router(agent_router)
+# The browser calls the agent directly. Only listed origins, only the one endpoint, no cookies.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o.strip() for o in get_settings().cors_origins.split(",") if o.strip()],
+    allow_methods=["POST"],
+    allow_headers=["Authorization", "Content-Type"],
+    allow_credentials=False,
+    max_age=600,
 )
 
 

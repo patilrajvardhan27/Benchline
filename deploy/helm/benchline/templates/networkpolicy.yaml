@@ -15,7 +15,7 @@ metadata:
 spec:
   podSelector:
     matchExpressions:
-      - { key: app.kubernetes.io/name, operator: In, values: [web, pricing-api] }
+      - { key: app.kubernetes.io/name, operator: In, values: [web, pricing-api, ml-service] }
   policyTypes: [Ingress]
   ingress:
     - from:

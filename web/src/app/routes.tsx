@@ -12,6 +12,7 @@ const ItemsPage = page(() => import("../pages/ItemsPage"), "ItemsPage");
 const ItemDetailPage = page(() => import("../pages/ItemDetailPage"), "ItemDetailPage");
 const OpportunitiesPage = page(() => import("../pages/OpportunitiesPage"), "OpportunitiesPage");
 const AnomaliesPage = page(() => import("../pages/AnomaliesPage"), "AnomaliesPage");
+const AskPage = page(() => import("../pages/AskPage"), "AskPage");
 const AboutPage = page(() => import("../pages/AboutPage"), "AboutPage");
 const TermsPage = page(() => import("../pages/TermsPage"), "TermsPage");
 const PrivacyPage = page(() => import("../pages/PrivacyPage"), "PrivacyPage");
@@ -33,6 +34,7 @@ export function AppRoutes() {
         <Route path="items/:itemId" element={<ItemDetailPage />} />
         <Route path="opportunities" element={<OpportunitiesPage />} />
         <Route path="anomalies" element={<AnomaliesPage />} />
+        <Route path="ask" element={<AskPage />} />
         <Route path="about" element={<AboutPage />} />
         <Route path="terms" element={<TermsPage />} />
         <Route path="privacy" element={<PrivacyPage />} />

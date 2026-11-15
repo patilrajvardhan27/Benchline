@@ -28,7 +28,7 @@ async function createManager(): Promise<Manager> {
     redirect_uri: `${window.location.origin}/auth/callback`,
     post_logout_redirect_uri: window.location.origin,
     response_type: "code",
-    scope: "openid prices:read members:read insights:read insights:write",
+    scope: "openid prices:read members:read insights:read insights:write agent:run",
     userStore: new WebStorageStateStore({ store: new InMemoryWebStorage() }),
     stateStore: new WebStorageStateStore({ store: window.sessionStorage }),
   });

@@ -99,6 +99,17 @@ services:
     environment:
       ML_DATABASE_URL: postgresql://${POSTGRES_USER:-benchline}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-benchline}
       ML_KAFKA_BOOTSTRAP: kafka:29092
+      # Ask Benchline: off until BENCHLINE_LLM_MODEL is set in .env
+      DEV_JWT_SECRET: ${DEV_JWT_SECRET}
+      ML_CORS_ORIGINS: http://localhost:8088,http://localhost:5173
+      BENCHLINE_LLM_MODEL: ${BENCHLINE_LLM_MODEL:-}
+      BENCHLINE_LLM_FALLBACK_MODEL: ${BENCHLINE_LLM_FALLBACK_MODEL:-}
+      BENCHLINE_LLM_API_BASE: ${BENCHLINE_LLM_API_BASE:-}
+      BENCHLINE_LLM_API_KEY: ${BENCHLINE_LLM_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ML_AGENT_DAILY_USD: ${ML_AGENT_DAILY_USD:-1.00}
+    ports: ["127.0.0.1:8000:8000"]
     depends_on:
       migrate: { condition: service_completed_successfully }
       kafka: { condition: service_healthy }
@@ -128,6 +139,7 @@ services:
       dockerfile: deploy/docker/web.Dockerfile
       args:
         VITE_API_BASE_URL: http://localhost:8080
+        VITE_AGENT_BASE_URL: http://localhost:8000
         VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-patilrajvardhan27@gmail.com}
         VITE_OPERATOR_NAME: ${VITE_OPERATOR_NAME:-Benchline maintainer}
     ports: ["127.0.0.1:8088:8080"]

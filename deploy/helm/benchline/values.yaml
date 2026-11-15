@@ -32,7 +32,14 @@ services:
     replicas: 1
     probes: { ready: /healthz, live: /healthz, startSeconds: 60 }
     secretEnv: [POSTGRES_PASSWORD]
-    env: {}
+    # Ask Benchline: dev tokens on local clusters, OIDC elsewhere; model keys come from the secret store.
+    optionalSecretEnv: [DEV_JWT_SECRET, BENCHLINE_LLM_API_KEY]
+    env:
+      OIDC_ISSUER_URI: ""
+      ML_CORS_ORIGINS: ""
+      BENCHLINE_LLM_MODEL: ""
+      BENCHLINE_LLM_API_BASE: ""
+      ML_AGENT_DAILY_USD: "1.00"
     resources: { requests: { cpu: 50m, memory: 128Mi }, limits: { memory: 256Mi } }
   web:
     image: benchline-web
