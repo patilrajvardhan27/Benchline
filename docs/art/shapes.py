@@ -32,10 +32,10 @@ class Canvas:
         r = self.rng
         pts = [(x + _jitter(r, wobble), y + _jitter(r, wobble)), (x + w + _jitter(r, wobble), y + _jitter(r, wobble)),
                (x + w + _jitter(r, wobble), y + h + _jitter(r, wobble)), (x + _jitter(r, wobble), y + h + _jitter(r, wobble))]
-        d = f"M{pts[0][0]:.1f},{pts[0][1]:.1f} " + " ".join(f"L{px:.1f},{py:.1f}" for px, py in pts[1:] + [pts[0]])
+        d = f"M{pts[0][0]:.1f},{pts[0][1]:.1f} " + " ".join(f"L{px:.1f},{py:.1f}" for px, py in [*pts[1:], pts[0]])
         # a second, slightly different pass is what makes it look pen-drawn
         q = [(px + _jitter(r, 1.5), py + _jitter(r, 1.5)) for px, py in pts]
-        d2 = f"M{q[0][0]:.1f},{q[0][1]:.1f} " + " ".join(f"L{px:.1f},{py:.1f}" for px, py in q[1:] + [q[0]])
+        d2 = f"M{q[0][0]:.1f},{q[0][1]:.1f} " + " ".join(f"L{px:.1f},{py:.1f}" for px, py in [*q[1:], q[0]])
         self.parts.append(f'<path d="{d}" fill="{fill}" stroke="{stroke}" stroke-width="{width}" '
                           'stroke-linejoin="round" stroke-linecap="round"/>')
         self.parts.append(f'<path d="{d2}" fill="none" stroke="{stroke}" stroke-width="{width * 0.5}" '

@@ -154,6 +154,26 @@ kind delete cluster --name benchline
 
 ---
 
+<img src="docs/images/art/h-perf.svg" alt="load test: Kafka scaling and a killed worker" width="100%">
+
+<img src="docs/images/art/perf-scaling.svg" alt="Bar chart of worker throughput: 5,185 events per second with one commit per event, 12,349 with one commit per poll, and with 12 partitions 16,921, 27,335 and 36,264 for 1, 2 and 4 workers." width="100%">
+
+The whole pipeline was loaded with every weekly file CMS publishes, 2013 to 2026: 17.5 million rows, 3,605,712
+price changes. Running it at that volume found three problems, now fixed and covered by tests: two concurrent
+batches could deadlock on the same new groups, the worker committed once per event (one commit per Kafka poll
+made it 2.4 times faster), and the partition and replica counts were hard-coded. With 12 partitions the worker
+scales from 16,921 to 36,264 events per second going from 1 to 4 replicas; with 3 partitions extra replicas sit
+idle.
+
+<img src="docs/images/art/perf-kill.svg" alt="Line chart of events waiting in Kafka while one of four workers is killed with kill -9 and restarted 20 seconds later. 498,360 events published, 498,360 stored, 0 lost, the snapshots identical to a clean run, and 48,000 redelivered events all skipped." width="100%">
+
+One of four workers was killed with `kill -9` mid-stream and restarted 20 seconds later: no event lost, none stored
+twice, and the final snapshots identical to an undisturbed run. Rewinding Kafka by 48,000 events made the workers
+see every one of them again; all were skipped. Method, tables and the commands to reproduce:
+[docs/performance.md](docs/performance.md).
+
+---
+
 <img src="docs/images/art/h-run.svg" alt="run it on your machine" width="100%">
 
 <img src="docs/images/art/run-locally.svg" alt="Three ways to run Benchline: A, just look at the demo with no Docker. B, run the full stack with Docker. C, run the tests." width="100%">
@@ -229,7 +249,7 @@ uv run scripts/build_demo_snapshot.py     # writes web/public/demo from data/sil
 
 <img src="docs/images/art/h-test.svg" alt="run the tests" width="100%">
 
-<img src="docs/images/art/tests.svg" alt="426 tests, none failing: Java 56, pipelines 130, ML service 60, scripts 7, dbt 28, Go 4, web unit 83, browser 58. WCAG 2.2 AA zero violations including colour contrast in a real browser." width="100%">
+<img src="docs/images/art/tests.svg" alt="433 tests, none failing: Java 63, pipelines 130, ML service 60, scripts 7, dbt 28, Go 4, web unit 83, browser 58. WCAG 2.2 AA zero violations including colour contrast in a real browser." width="100%">
 
 Everything at once (this is also what CI runs):
 
@@ -316,7 +336,7 @@ contracts/       OpenAPI and event JSON schemas
 db/migrations/   Flyway SQL
 deploy/          Dockerfiles, Helm chart, Terraform, flagd, OTel collector
 docs/            architecture, ADRs, security, deployment, data sources, KPIs, README art
-scripts/         verify, file-length check, snapshot builders, synthetic data, dev token
+scripts/         verify, file-length check, snapshot builders, synthetic data, dev token, loadtest/ (load and kill tests)
 ```
 
 Security notes are in [docs/security.md](docs/security.md) and [SECURITY.md](SECURITY.md).

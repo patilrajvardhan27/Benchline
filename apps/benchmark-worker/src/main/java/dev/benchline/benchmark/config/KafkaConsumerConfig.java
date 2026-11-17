@@ -4,6 +4,7 @@ import dev.benchline.benchmark.consumer.MalformedEventException;
 import dev.benchline.common.events.PricePointRecorded;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.TopicPartition;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.TopicBuilder;
@@ -24,7 +25,7 @@ class KafkaConsumerConfig {
 
     @Bean
     DefaultErrorHandler errorHandler(KafkaTemplate<Object, Object> template) {
-        // Partition -1 lets the producer pick, since the DLQ has one partition and the source has three.
+        // Partition -1 lets the producer pick, since the DLQ has one partition and the source has several.
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
                 template, (record, ex) -> new TopicPartition(record.topic() + DLQ_SUFFIX, -1));
         DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, new FixedBackOff(500L, 3L));
@@ -33,8 +34,8 @@ class KafkaConsumerConfig {
     }
 
     @Bean
-    NewTopic priceRecordedTopic() {
-        return TopicBuilder.name(PricePointRecorded.TOPIC).partitions(3).replicas(1).build();
+    NewTopic priceRecordedTopic(@Value("${benchline.kafka.partitions:3}") int partitions) {
+        return TopicBuilder.name(PricePointRecorded.TOPIC).partitions(partitions).replicas(1).build();
     }
 
     @Bean

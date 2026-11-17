@@ -1,0 +1,10 @@
+{
+  "label": "load-p12",
+  "events": 498360,
+  "rows_sent": 498360,
+  "ingest_s": 69.9,
+  "ingest_eps": 7129.8,
+  "publish_done_s": 70.5,
+  "publish_lag_after_ingest_s": 0.6,
+  "publish_eps": 7065.9
+}

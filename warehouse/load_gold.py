@@ -17,8 +17,8 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
-from build_demo_snapshot import group_id, money
-from synthetic_data import generate
+from build_demo_snapshot import group_id, money  # noqa: E402
+from synthetic_data import generate  # noqa: E402
 
 SCHEMA = "raw"
 
@@ -36,7 +36,8 @@ def gold_tables(silver: Path, group_map: Path | None) -> dict[str, pd.DataFrame]
     items = latest[["item_id", "ndc11", "description", "group_id", "group_name"]]
 
     priced = [(r.item_id, Decimal(r.unit_price)) for r in latest.itertuples()]
-    _, lines = generate(priced, facilities=6, lines_each=120, seed=42, today=date.fromisoformat(latest["as_of_date"].max()))
+    today = date.fromisoformat(latest["as_of_date"].max())
+    _, lines = generate(priced, facilities=6, lines_each=120, seed=42, today=today)
     purchases = pd.DataFrame([{
         "purchase_line_id": n, "facility_id": ln.facility_id, "item_id": ln.item_id,
         "unit_price": money(ln.unit_price), "qty": ln.qty, "purchased_on": ln.purchased_on,

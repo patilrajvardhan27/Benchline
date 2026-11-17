@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from shapes import (EMBER, EMBER_DARK, EMBER_PALE, INK, LINE, MUTED, TEAL, TEAL_DARK, TEAL_PALE, Canvas)
+from shapes import EMBER, EMBER_DARK, EMBER_PALE, INK, LINE, MUTED, TEAL, TEAL_DARK, TEAL_PALE, Canvas
 
 
 def funnel() -> str:
@@ -80,10 +80,10 @@ def run_locally() -> str:
 
 
 def tests() -> str:
-    c = Canvas(1200, 744, "What was run and what passed", "Java 56, pipelines 130, ML service 60, scripts 7, dbt 28, "
-               "Go 4, web 83, browser 58. 426 tests, none failing. Zero accessibility violations.", 17)
-    c.text(60, 70, "426 tests · 0 failing", 54, TEAL_DARK, 700)
-    rows = [("Java: API, worker, shared code", "56", "unit, security, real Postgres, embedded Kafka"),
+    c = Canvas(1200, 744, "What was run and what passed", "Java 63, pipelines 130, ML service 60, scripts 7, dbt 28, "
+               "Go 4, web 83, browser 58. 433 tests, none failing. Zero accessibility violations.", 17)
+    c.text(60, 70, "433 tests · 0 failing", 54, TEAL_DARK, 700)
+    rows = [("Java: API, worker, shared code", "63", "unit, security, real Postgres, embedded Kafka"),
             ("Python: pipelines + normalizer + LiteLLM", "130", "LiteLLM Router and S3 storage, offline"),
             ("Python: ML service + agent", "60", "6 of them need a database"),
             ("Python: snapshot + synthetic data", "7", "hand-computed percentiles"),

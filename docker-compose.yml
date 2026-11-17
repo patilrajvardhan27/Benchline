@@ -6,6 +6,8 @@
 name: benchline
 
 x-service-env: &service-env
+  KAFKA_PARTITIONS: ${KAFKA_PARTITIONS:-3}
+  WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-3}
   POSTGRES_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-benchline}
   POSTGRES_USER: ${POSTGRES_USER:-benchline}
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
@@ -88,6 +90,7 @@ services:
     build: { context: ., dockerfile: deploy/docker/spring.Dockerfile, args: { APP: benchmark-worker } }
     environment:
       <<: *service-env
+      LOGGING_LEVEL_DEV_BENCHLINE_BENCHMARK_DOMAIN: ${WORKER_LOG_LEVEL:-INFO}   # DEBUG logs every duplicate skipped
       OTEL_SERVICE_NAME: benchmark-worker
       OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
     depends_on:
@@ -129,6 +132,7 @@ services:
     build: { context: ., dockerfile: deploy/docker/lag-monitor.Dockerfile }
     environment:
       KAFKA_BOOTSTRAP: kafka:29092
+      LAG_INTERVAL: ${LAG_INTERVAL:-15s}
     ports: ["127.0.0.1:9308:9308"]
     depends_on:
       kafka: { condition: service_healthy }

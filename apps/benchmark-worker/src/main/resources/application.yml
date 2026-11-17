@@ -24,7 +24,7 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     listener:
-      concurrency: 3
+      concurrency: ${WORKER_CONCURRENCY:3}   # consumer threads per replica; replicas x this should not exceed the partitions
 
 server:
   port: 8081
@@ -47,6 +47,8 @@ management:
       show-details: never
 
 benchline:
+  kafka:
+    partitions: ${KAFKA_PARTITIONS:3}
   flags:
     host: ${FLAGD_HOST:localhost}
     port: ${FLAGD_PORT:8013}

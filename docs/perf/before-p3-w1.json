@@ -1,0 +1,14 @@
+{
+  "label": "before-p3-w1",
+  "events": 498360,
+  "replicas": 1,
+  "threads_per_replica": 3,
+  "partitions": 3,
+  "startup_s": 10.6,
+  "drain_s": 96.1,
+  "consume_eps": 5185.0,
+  "peak_5s_eps": 6897.3,
+  "final_lag": 0,
+  "snapshots": 89561,
+  "snapshot_digest": "2c76ac1d52a700eef15e4b6f80d850df"
+}

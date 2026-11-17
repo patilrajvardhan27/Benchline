@@ -18,7 +18,6 @@ from datetime import date
 from decimal import Decimal
 
 import psycopg
-
 from synthetic_data import generate
 
 

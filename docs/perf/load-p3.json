@@ -1,0 +1,10 @@
+{
+  "label": "load-p3",
+  "events": 498360,
+  "rows_sent": 498360,
+  "ingest_s": 90.6,
+  "ingest_eps": 5502.1,
+  "publish_done_s": 91.2,
+  "publish_lag_after_ingest_s": 0.6,
+  "publish_eps": 5464.4
+}

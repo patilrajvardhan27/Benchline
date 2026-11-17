@@ -1,0 +1,27 @@
+{
+  "label": "full-history-part2",
+  "events": 1341458,
+  "rows_sent": 1402441,
+  "duplicates_rejected": 60983,
+  "ingest_s": 415.7,
+  "ingest_eps": 3226.7,
+  "publish_done_s": 417.0,
+  "publish_eps": 3216.7,
+  "consume_s": 3.2,
+  "consume_eps": 425848.2,
+  "end_to_end_s": 420.2,
+  "end_to_end_eps": 3192.6,
+  "peak_worker_lag": 975,
+  "final_lag": {
+    "benchmark-worker": {
+      "total": 0,
+      "max_partition": 0
+    },
+    "ml-anomaly": {
+      "total": 3605712,
+      "max_partition": 324116
+    }
+  },
+  "snapshots": 613009,
+  "snapshot_digest": "20a1365d137091f5e1fa6fae751275f4"
+}

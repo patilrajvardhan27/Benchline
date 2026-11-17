@@ -1,0 +1,14 @@
+{
+  "label": "p3-w4",
+  "events": 498360,
+  "replicas": 4,
+  "threads_per_replica": 3,
+  "partitions": 3,
+  "startup_s": 14.2,
+  "drain_s": 36.8,
+  "consume_eps": 13556.6,
+  "peak_5s_eps": 16836.8,
+  "final_lag": 0,
+  "snapshots": 89561,
+  "snapshot_digest": "2c76ac1d52a700eef15e4b6f80d850df"
+}

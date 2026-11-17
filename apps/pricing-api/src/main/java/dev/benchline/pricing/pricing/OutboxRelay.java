@@ -2,6 +2,7 @@ package dev.benchline.pricing.pricing;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -34,7 +35,7 @@ class OutboxRelay {
             JdbcClient jdbc,
             KafkaTemplate<String, String> kafka,
             TransactionTemplate tx,
-            @Value("${benchline.outbox.batch-size:200}") int batchSize) {
+            @Value("${benchline.outbox.batch-size:500}") int batchSize) {
         this.jdbc = jdbc;
         this.kafka = kafka;
         this.tx = tx;
@@ -75,23 +76,30 @@ class OutboxRelay {
                         rs.getString("payload")))
                 .list();
 
-        for (OutboxRow row : rows) {
-            send(row);
-            jdbc.sql("UPDATE pricing.outbox_event SET published_at = now() WHERE id = :id")
-                    .param("id", row.id())
+        // Every row of the batch is in flight at once; the producer keeps them in order per partition. The
+        // rows are marked published only after the broker has acknowledged all of them.
+        List<CompletableFuture<?>> sends = rows.stream().map(this::send).toList();
+        awaitAll(sends, rows);
+        if (!rows.isEmpty()) {
+            jdbc.sql("UPDATE pricing.outbox_event SET published_at = now() WHERE id IN (:ids)")
+                    .param("ids", rows.stream().map(OutboxRow::id).toList())
                     .update();
         }
         return rows.size();
     }
 
-    private void send(OutboxRow row) {
+    private CompletableFuture<?> send(OutboxRow row) {
+        return kafka.send(row.type(), row.aggregateId(), row.payload());
+    }
+
+    private void awaitAll(List<CompletableFuture<?>> sends, List<OutboxRow> rows) {
         try {
-            kafka.send(row.type(), row.aggregateId(), row.payload()).get(SEND_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
+            CompletableFuture.allOf(sends.toArray(CompletableFuture[]::new)).get(SEND_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new IllegalStateException("Interrupted while publishing " + row.id(), e);
+            throw new IllegalStateException("Interrupted while publishing " + rows.size() + " events", e);
         } catch (ExecutionException | TimeoutException e) {
-            throw new IllegalStateException("Kafka did not acknowledge event " + row.id(), e);
+            throw new IllegalStateException("Kafka did not acknowledge a batch of " + rows.size() + " events", e);
         }
     }
 

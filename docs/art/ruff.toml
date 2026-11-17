@@ -1,0 +1,7 @@
+# README art scripts: long lines are the drawn text, and wrapping them makes the scenes harder to read.
+line-length = 120
+target-version = "py312"
+
+[lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["E501", "UP031"]

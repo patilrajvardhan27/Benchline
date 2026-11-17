@@ -26,6 +26,8 @@ app.kubernetes.io/name: {{ . }}
   value: postgresql://{{ .Values.postgres.user }}:$(POSTGRES_PASSWORD)@{{ .Values.postgres.host }}:{{ .Values.postgres.port }}/{{ .Values.postgres.database }}
 - name: KAFKA_BOOTSTRAP
   value: {{ .Values.kafka.bootstrap | quote }}
+- name: KAFKA_PARTITIONS
+  value: {{ .Values.kafka.partitions | quote }}
 - name: ML_KAFKA_BOOTSTRAP
   value: {{ .Values.kafka.bootstrap | quote }}
 - name: FLAGD_HOST

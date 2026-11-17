@@ -8,7 +8,12 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -44,22 +49,41 @@ public class BenchmarkService {
                 .register(meters);
     }
 
-    /** Returns true if the event changed a snapshot, false if it was a duplicate or had no data. */
+    /**
+     * Stores a whole poll's worth of events in one transaction: one commit, so one log flush, instead of one
+     * per event. Each (group, week) benchmark is computed once however many events point at it, which gives
+     * the same rows as handling the events one by one, because a snapshot depends only on the stored prices.
+     * Returns the events that were new and changed a snapshot.
+     */
     @Transactional
-    public boolean handle(EventEnvelope<PricePointRecorded> event) {
-        if (!idempotency.claim(event.id())) {
+    public List<EventEnvelope<PricePointRecorded>> handleBatch(List<EventEnvelope<PricePointRecorded>> events) {
+        List<EventEnvelope<PricePointRecorded>> fresh = events.stream().filter(this::claimed).toList();
+        Set<Target> stored = new HashSet<>();
+        for (Target target : fresh.stream().map(Target::of).collect(Collectors.toCollection(LinkedHashSet::new))) {
+            Optional<Percentiles> result = snapshots.compute(target.groupId(), target.week(), windowWeeks);
+            if (result.isPresent()) {
+                snapshots.upsert(target.groupId(), target.week(), result.get(), method());
+                stored.add(target);
+            }
+        }
+        List<EventEnvelope<PricePointRecorded>> changed = fresh.stream().filter(e -> stored.contains(Target.of(e))).toList();
+        Instant now = Instant.now();
+        changed.forEach(e -> lag.record(Duration.between(e.time(), now)));
+        return changed;
+    }
+
+    private boolean claimed(EventEnvelope<PricePointRecorded> event) {
+        boolean isNew = idempotency.claim(event.id());
+        if (!isNew) {
             log.debug("Skipping duplicate event {}", event.id());
-            return false;
         }
-        PricePointRecorded price = event.data();
-        BenchmarkWeek week = BenchmarkWeek.containing(price.asOfDate());
-        Optional<Percentiles> result = snapshots.compute(price.itemGroupId(), week, windowWeeks);
-        if (result.isEmpty()) {
-            return false;
+        return isNew;
+    }
+
+    private record Target(String groupId, BenchmarkWeek week) {
+        static Target of(EventEnvelope<PricePointRecorded> event) {
+            return new Target(event.data().itemGroupId(), BenchmarkWeek.containing(event.data().asOfDate()));
         }
-        snapshots.upsert(price.itemGroupId(), week, result.get(), method());
-        lag.record(Duration.between(event.time(), Instant.now()));
-        return true;
     }
 
     String method() {

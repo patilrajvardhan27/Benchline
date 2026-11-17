@@ -8,7 +8,8 @@ from __future__ import annotations
 
 import logging
 import time
-from collections.abc import Hashable, Iterator, Mapping
+from collections.abc import Callable, Hashable, Iterator, Mapping
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -64,9 +65,10 @@ def select_weeks(df: pd.DataFrame, weeks: int | None, since: str | None) -> pd.D
     return combined
 
 
-def _post(client: httpx.Client, url: str, batch: list[dict[str, Any]]) -> dict[str, int]:
+def _post(client: httpx.Client, url: str, batch: list[dict[str, Any]], token: Callable[[], str]) -> dict[str, int]:
     for attempt in range(1, MAX_ATTEMPTS + 1):
-        response = client.post(url, json={"pricePoints": batch})
+        # A token per request: the development tokens last an hour and a full replay takes longer.
+        response = client.post(url, json={"pricePoints": batch}, headers={"Authorization": f"Bearer {token()}"})
         if response.status_code == 202:
             body = response.json()
             return {"accepted": int(body["accepted"]), "duplicates": int(body["duplicates"])}
@@ -83,26 +85,31 @@ def _post(client: httpx.Client, url: str, batch: list[dict[str, Any]]) -> dict[s
 def replay(
     silver_file: Path,
     base_url: str,
-    token: str,
+    token: str | Callable[[], str],
     weeks: int | None = None,
     since: str | None = None,
     client: httpx.Client | None = None,
     group_map: Path | None = None,
+    concurrency: int = 1,
 ) -> ReplayResult:
+    """Weeks go in order; within a week the batches may be posted `concurrency` at a time."""
     df = select_weeks(pd.read_parquet(silver_file), weeks, since)
     if group_map is not None:
         names = pd.read_parquet(group_map, columns=["ndc11", "group_name"]).drop_duplicates("ndc11")
         df = df.merge(names, on="ndc11", how="left")
     result = ReplayResult()
     owns_client = client is None
-    http = client or httpx.Client(headers={"Authorization": f"Bearer {token}"}, timeout=60)
+    http = client or httpx.Client(timeout=60)
+    token_source = token if callable(token) else (lambda: token)
     url = f"{base_url.rstrip('/')}/api/v1/price-points:batch"
     try:
         for as_of, week_rows in df.groupby("as_of_date", sort=True):
             rows = week_rows.sort_values("effective_date").to_dict("records")
             payload = [_to_payload(r) for r in rows]
-            for batch in _batches(payload):
-                receipt = _post(http, url, batch)
+            batches = list(_batches(payload))
+            with ThreadPoolExecutor(max_workers=concurrency) as pool:
+                receipts = list(pool.map(lambda b: _post(http, url, b, token_source), batches))
+            for batch, receipt in zip(batches, receipts, strict=True):
                 result.sent += len(batch)
                 result.accepted += receipt["accepted"]
                 result.duplicates += receipt["duplicates"]

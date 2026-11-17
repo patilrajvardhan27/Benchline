@@ -58,6 +58,8 @@ management:
       show-details: never
 
 benchline:
+  kafka:
+    partitions: ${KAFKA_PARTITIONS:3}
   security:
     dev-jwt-secret: ${DEV_JWT_SECRET:}
     require-https: ${REQUIRE_HTTPS:false}

@@ -1,0 +1,10 @@
+{
+  "label": "before-load-p3",
+  "events": 498360,
+  "rows_sent": 498360,
+  "ingest_s": 162.7,
+  "ingest_eps": 3063.0,
+  "publish_done_s": 163.8,
+  "publish_lag_after_ingest_s": 1.1,
+  "publish_eps": 3041.8
+}

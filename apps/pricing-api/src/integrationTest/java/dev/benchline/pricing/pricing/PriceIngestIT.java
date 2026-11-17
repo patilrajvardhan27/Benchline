@@ -148,6 +148,30 @@ class PriceIngestIT extends PostgresTestBase {
     }
 
     @Test
+    void concurrentBatchesCreatingTheSameGroupsInOppositeOrderDoNotDeadlock() throws Exception {
+        for (int round = 0; round < 15; round++) {
+            List<PricePointInput> forward = new java.util.ArrayList<>();
+            for (int k = 0; k < 30; k++) {
+                forward.add(grouped("%05d%06d".formatted(round, k), "DRUG-%d-%d 10 MG TAB".formatted(round, k), "0.05", "2026-10-29", null));
+            }
+            List<PricePointInput> backward = new java.util.ArrayList<>(forward);
+            java.util.Collections.reverse(backward);
+
+            var barrier = new java.util.concurrent.CyclicBarrier(2);
+            try (var pool = java.util.concurrent.Executors.newFixedThreadPool(2)) {
+                var a = pool.submit(() -> { barrier.await(); return ingest.ingest(forward); });
+                var b = pool.submit(() -> { barrier.await(); return ingest.ingest(backward); });
+                IngestReceipt first = a.get();
+                IngestReceipt second = b.get();
+                // Every row is stored once, whichever batch got there first.
+                assertThat(first.accepted() + second.accepted()).isEqualTo(30);
+                assertThat(first.duplicates() + second.duplicates()).isEqualTo(30);
+            }
+        }
+        assertThat(count("pricing.price_point")).isEqualTo(15 * 30);
+    }
+
+    @Test
     void drainingAnEmptyOutboxIsANoop() {
         relay.drain();
         assertThat(count("pricing.outbox_event")).isZero();

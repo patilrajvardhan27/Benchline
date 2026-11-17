@@ -6,6 +6,7 @@ import dev.benchline.common.events.PricePointRecorded;
 import dev.benchline.common.money.Money;
 import dev.benchline.common.outbox.OutboxPublisher;
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,10 +30,20 @@ public class PriceIngestService {
         this.outbox = outbox;
     }
 
+    /**
+     * Rows are stored in one fixed order (group, NDC, date). Two batches that create the same new groups or
+     * items in different orders would otherwise take row locks crosswise and deadlock. An item's own rows
+     * stay in date order, so each event still carries the right previous price.
+     */
+    private static final Comparator<PricePointInput> STORE_ORDER = Comparator
+            .comparing((PricePointInput r) -> ItemGrouping.groupId(r.groupLabel()))
+            .thenComparing(PricePointInput::ndc11)
+            .thenComparing(PricePointInput::effectiveDate);
+
     @Transactional
     public IngestReceipt ingest(List<PricePointInput> rows) {
         int accepted = 0;
-        for (PricePointInput row : rows) {
+        for (PricePointInput row : rows.stream().sorted(STORE_ORDER).toList()) {
             if (store(row)) {
                 accepted++;
             }

@@ -37,6 +37,7 @@ def _parser() -> argparse.ArgumentParser:
     gold.add_argument("--weeks", type=int, help="only the latest N publication weeks")
     gold.add_argument("--since", help="only publication dates on or after YYYY-MM-DD")
     gold.add_argument("--group-map", type=Path, help="item_groups.parquet from the normalize command")
+    gold.add_argument("--concurrency", type=int, default=1, help="batches posted in parallel within a week")
     gold.add_argument("--api-url", default=os.environ.get("BENCHLINE_API_URL", "http://localhost:8080"))
     add_normalize_commands(sub)
     return parser
@@ -61,8 +62,8 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command in ("normalize", "normalize-eval", "normalize-probe"):
         run_normalize_command(args, data)
     elif args.command == "replay":
-        result = replay(data / "silver" / "nadac.parquet", args.api_url, token_from_env(),
-                        args.weeks, args.since, group_map=args.group_map)
+        result = replay(data / "silver" / "nadac.parquet", args.api_url, token_from_env,
+                        args.weeks, args.since, group_map=args.group_map, concurrency=args.concurrency)
         print(f"weeks={result.weeks} sent={result.sent} accepted={result.accepted} "
               f"duplicates={result.duplicates}")
 

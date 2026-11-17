@@ -1,0 +1,14 @@
+{
+  "label": "p12-w4",
+  "events": 498360,
+  "replicas": 4,
+  "threads_per_replica": 3,
+  "partitions": 12,
+  "startup_s": 12.1,
+  "drain_s": 13.7,
+  "consume_eps": 36263.7,
+  "peak_5s_eps": 46754.7,
+  "final_lag": 0,
+  "snapshots": 89561,
+  "snapshot_digest": "2c76ac1d52a700eef15e4b6f80d850df"
+}

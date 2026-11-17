@@ -1,0 +1,25 @@
+{
+  "label": "kill-test-p12-w4",
+  "events": 498360,
+  "killed": "d7e44251e0bb",
+  "down_s": 20.0,
+  "processed_at_kill": 157653,
+  "kill_at_s": 66.4,
+  "restart_at_s": 87.3,
+  "worker_lag_at_kill": {
+    "total": 49301,
+    "max_partition": 5455
+  },
+  "peak_worker_lag_after_kill": 181766,
+  "peak_partition_lag_after_kill": 29229,
+  "longest_stall_s": 14.200000000000003,
+  "finished_s": 123.0,
+  "seconds_from_restart_to_done": 35.7,
+  "duplicates_skipped": 0,
+  "events_published": 498360,
+  "events_stored": 498360,
+  "events_lost": 0,
+  "final_worker_lag": 0,
+  "snapshot_digest": "a9777b1a4cb2d31fd1831382f98b4a9c",
+  "digest_matches_clean_run": false
+}

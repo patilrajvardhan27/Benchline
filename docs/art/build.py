@@ -10,11 +10,12 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from scenes_a import hero, how_it_works, outbox  # noqa: E402
-from scenes_b import benchmark, funnel, git_push, normalizer, run_locally, tests  # noqa: E402
-from scenes_c import platform, warehouse  # noqa: E402
-from scenes_d import agent  # noqa: E402
-from shapes import EMBER_DARK, INK, TEAL_DARK, Canvas  # noqa: E402
+from scenes_a import hero, how_it_works, outbox
+from scenes_b import benchmark, funnel, git_push, normalizer, run_locally, tests
+from scenes_c import platform, warehouse
+from scenes_d import agent
+from scenes_e import kill, scaling
+from shapes import EMBER_DARK, INK, TEAL_DARK, Canvas
 
 OUT = Path(__file__).resolve().parents[1] / "images" / "art"
 
@@ -23,6 +24,7 @@ BANNERS = {
     "h-how": "how it works",
     "h-llm": "cleaning up product names (LiteLLM)",
     "h-ask": "Ask Benchline (an agent with three tools)",
+    "h-perf": "load test: Kafka scaling and a killed worker",
     "h-dbt": "the warehouse (Snowflake + dbt)",
     "h-k8s": "Kubernetes, MinIO and a Go lag monitor",
     "h-run": "run it on your machine",
@@ -63,7 +65,7 @@ def main() -> None:
     art = {"hero": hero(), "how-it-works": how_it_works(), "outbox": outbox(), "funnel": funnel(), "normalizer": normalizer(),
            "benchmark": benchmark(), "run-locally": run_locally(), "tests": tests(), "git-push": git_push(),
            "warehouse": warehouse(), "platform": platform(),
-           "agent": agent()}
+           "agent": agent(), "perf-scaling": scaling(), "perf-kill": kill()}
     for seed, (name, title) in enumerate(BANNERS.items(), 100):
         art[name] = banner(title, seed)
     for seed, (name, (text, color)) in enumerate(NOTES.items(), 200):

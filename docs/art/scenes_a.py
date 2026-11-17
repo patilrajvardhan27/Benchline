@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from shapes import (EMBER, EMBER_DARK, EMBER_PALE, FONT, INK, MUTED, TEAL, TEAL_DARK, TEAL_PALE, Canvas)
+from shapes import EMBER, EMBER_DARK, EMBER_PALE, FONT, INK, MUTED, TEAL, TEAL_DARK, TEAL_PALE, Canvas
 
 
 def hero() -> str:

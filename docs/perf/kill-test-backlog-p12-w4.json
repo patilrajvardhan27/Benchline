@@ -1,0 +1,26 @@
+{
+  "label": "kill-test-backlog-p12-w4",
+  "mode": "backlog",
+  "events": 498360,
+  "replicas": 4,
+  "killed_after_events": 161150,
+  "kill_at_s": 17.9,
+  "down_s": 20.0,
+  "worker_lag_at_kill": 350716,
+  "peak_worker_lag_after_kill": 309385,
+  "peak_partition_lag_after_kill": 32414,
+  "longest_stall_s": 36.4,
+  "seconds_from_restart_to_done": 31.6,
+  "events_published": 498360,
+  "events_stored": 498360,
+  "events_lost": 0,
+  "duplicates_skipped_after_kill": 0,
+  "final_worker_lag": 0,
+  "snapshot_digest": "2c76ac1d52a700eef15e4b6f80d850df",
+  "digest_matches_undisturbed_run": true,
+  "redelivered": {
+    "duplicates_skipped": 48000,
+    "events_stored_after": 498360,
+    "snapshot_digest_unchanged": true
+  }
+}

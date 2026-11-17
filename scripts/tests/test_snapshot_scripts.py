@@ -7,8 +7,8 @@ from pathlib import Path
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from build_demo_snapshot import build, group_id, money  # noqa: E402
-from synthetic_data import generate  # noqa: E402
+from build_demo_snapshot import build, group_id, money
+from synthetic_data import generate
 
 
 def silver(tmp_path: Path) -> Path:
